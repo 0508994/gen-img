@@ -146,10 +146,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Simulation\Simulation.cpp" />
     <ClCompile Include="src\ImgOps\ImgOps.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Simulation\Simulation.h" />
     <ClInclude Include="src\ImgOps\ImgOps.h" />
     <ClInclude Include="src\ImgOps\Mat.h" />
   </ItemGroup>

@@ -2,8 +2,8 @@
 
 namespace gir
 {
-	Mat<uchar> GrayscaleFromSFMLPtr(uchar * ptr)
+	Mat<sf::Uint8> GrayscaleFromSFMLImage(sf::Image& img)
 	{
-		return Mat<uchar>();
+		return Mat<sf::Uint8>();
 	}
 }

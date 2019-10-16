@@ -77,7 +77,7 @@ namespace gir
 	template<typename T>
 	inline void Mat<T>::Value(T value)
 	{
-		if (m_M != nullptr)
+		if (m_Mat != nullptr)
 		{
 			for (int i = 0; i < m_M; i++)
 				for (int j = 0; j < m_N; j++)

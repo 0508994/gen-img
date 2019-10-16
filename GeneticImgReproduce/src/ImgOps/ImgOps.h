@@ -1,9 +1,10 @@
 #pragma once
 #include "Mat.h"
+#include "SFML/Graphics/Image.hpp"
 
-typedef unsigned char uchar;
 
 namespace gir
 {
-	Mat<uchar> GrayscaleFromSFMLPtr(uchar* ptr);
+
+	Mat<sf::Uint8> GrayscaleFromSFMLImage(sf::Image& img);
 }
