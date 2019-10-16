@@ -9,6 +9,7 @@ namespace gir
 	{
 	private:
 		bool m_Running = false;
+		bool m_Redraw = true;
 		unsigned int m_WindowWidth;
 		unsigned int m_WindowHeight;
 		sf::RenderWindow m_Window;

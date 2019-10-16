@@ -19,22 +19,29 @@ namespace gir
 
 	void Simulation::Render()
 	{
-		sf::Image i;
-		i.loadFromFile("../img/some_random_tower.jpg");
-		
-		Mat<sf::Uint8> gray(i.getSize().y, i.getSize().x);
-		ToGrayscale(i, gray);
-		ToSFMLImage(gray, i);
-		
-		sf::Texture t;
-		t.loadFromImage(i);
+		if (m_Redraw)
+		{
+			sf::Image i;
+			i.loadFromFile("../img/wikipedia_sobel.png");
 
-		sf::Sprite s(t);
-		s.scale(sf::Vector2f(0.5f, 0.5f));
-		
-		m_Window.clear();
-		m_Window.draw(s);
-		m_Window.display();
+			Mat<sf::Uint8> gray(i.getSize().y, i.getSize().x);
+			Mat<sf::Uint8> edge(i.getSize().y, i.getSize().x);
+
+			ToGrayscale(i, gray);
+			Sobel(gray, edge);
+			ToSFMLImage(edge, i);
+
+			sf::Texture t;
+			t.loadFromImage(i);
+
+			sf::Sprite s(t);
+			s.scale(sf::Vector2f(0.7f, 0.7f));
+
+			m_Window.clear();
+			m_Window.draw(s);
+			m_Window.display();
+			m_Redraw = false;
+		}
 	}
 
 	void Simulation::Run()

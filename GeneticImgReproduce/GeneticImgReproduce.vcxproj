@@ -152,6 +152,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ImgOps\Kernels.h" />
     <ClInclude Include="src\Simulation\Genetic\GeneticOptimizer.h" />
     <ClInclude Include="src\Simulation\Simulation.h" />
     <ClInclude Include="src\ImgOps\ImgOps.h" />

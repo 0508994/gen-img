@@ -41,5 +41,8 @@
     <ClInclude Include="src\ImgOps\Mat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ImgOps\Kernels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

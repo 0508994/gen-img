@@ -1,10 +1,5 @@
 #include "ImgOps.h"
 
-template<class T>
-constexpr const T& clamp(const T& v, const T& lo, const T& hi)
-{
-	return v <= lo ? lo : (v >= hi ? hi : v);
-}
 
 namespace gir
 {
@@ -13,7 +8,7 @@ namespace gir
 		const sf::Uint8* pByteBuffer = inRgba.getPixelsPtr();
 		auto sfSize = inRgba.getSize();
 		
-		size_t numPixels = sfSize.x * sfSize.y;
+		int numPixels = sfSize.x * sfSize.y;
 
 		for (int i = 0; i < numPixels; ++i)
 		{
@@ -37,5 +32,86 @@ namespace gir
 				sf::Uint8 g = inGray[y][x];
 				outRgba.setPixel(x, y, sf::Color(g, g, g));
 			}
+	}
+
+	void Convolution(const Mat<sf::Uint8>& src, Mat<float>& dst, const Kernel& kernel)
+	{
+		assert(kernel.size() == kernel[0].size() && kernel.size() % 2 != 0);
+
+		float sum;
+		int x1, y1;
+		unsigned int cols = src.Cols();
+		unsigned int rows = src.Rows();
+		int kernelSize = kernel.size();				
+		int kernelOffset = kernelSize / 2;
+
+		for (int y = 0; y < rows; y++)
+		{
+			for (int x = 0; x < cols; x++)
+			{
+				sum = 0.0f;
+				for (int k = -kernelOffset; k <= kernelOffset; k++)
+				{
+					for (int j = -kernelOffset; j < kernelOffset; j++)
+					{
+						x1 = circular(cols, x - j);
+						y1 = circular(rows, y - k);
+						sum += kernel[j + 1][k + 1] * src[y1][x1];
+					}
+				}
+
+				//sum = clamp(sum, 0.0f, 255.0f);
+				//dst[y][x] = static_cast<sf::Uint8>(sum);
+				dst[y][x] = sum;
+			}
+		}
+	}
+
+	// https://dsp.stackexchange.com/questions/51726/is-it-possible-to-combine-two-sobel-kernels-into-one
+	void Magnitude(const Mat<float>& gx, const Mat<float>& gy, Mat<sf::Uint8>& result)
+	{
+		unsigned int cols = result.Cols();
+		unsigned int rows = result.Rows();
+		
+		for (int y = 0; y < rows; y++)
+		{
+			for (int x = 0; x < cols; x++)
+			{
+				float value = clamp(hypot((gx[y][x]), (gy[y][x])), 0.0f, 255.0f);
+
+				//sf::Uint8 threshold = 70;
+				//result[y][x] = std::min(static_cast<sf::Uint8>(value), threshold);
+				result[y][x] = static_cast<sf::Uint8>(value);
+			}
+		}
+	}
+
+	static void SimpleEdge(const Mat<sf::Uint8>& src, Mat<sf::Uint8>& dst, const Kernel& kx, const Kernel& ky)
+	{
+		unsigned int cols = src.Cols();
+		unsigned int rows = src.Rows();
+
+		Mat<float> gx(rows, cols);
+		Mat<float> gy(rows, cols);
+
+		Convolution(src, gx, kx);
+		Convolution(src, gy, ky);
+
+		Magnitude(gx, gy, dst);
+	}
+
+	void Sobel(const Mat<sf::Uint8>& src, Mat<sf::Uint8>& dst)
+	{
+		SimpleEdge(src, dst, sobelx3, sobely3);
+	}
+
+	void Prewitt(const Mat<sf::Uint8>& src, Mat<sf::Uint8>& dst)
+	{
+		SimpleEdge(src, dst, prewittx3, prewitty3);
+	}
+
+	void Scharr(const Mat<sf::Uint8>& src, Mat<sf::Uint8>& dst)
+	{
+		SimpleEdge(src, dst, scharrx3, scharry3);
 	}
 }
