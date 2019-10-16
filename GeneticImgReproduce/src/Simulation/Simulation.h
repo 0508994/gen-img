@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-
+#include "Genetic/GeneticOptimizer.h"
+#include "ImgOps.h"
 
 namespace gir
 {

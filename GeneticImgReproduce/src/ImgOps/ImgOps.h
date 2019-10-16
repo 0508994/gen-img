@@ -5,6 +5,6 @@
 
 namespace gir
 {
-
-	Mat<sf::Uint8> GrayscaleFromSFMLImage(sf::Image& img);
+	void ToGrayscale(const sf::Image& inRgba, Mat<sf::Uint8>& outGray);
+	void ToSFMLImage(const Mat<sf::Uint8>& inGray, sf::Image& outRgba);
 }

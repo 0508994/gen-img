@@ -19,11 +19,21 @@ namespace gir
 
 	void Simulation::Render()
 	{
-		sf::CircleShape shape(100.0f);
-		shape.setFillColor(sf::Color::Red);
+		sf::Image i;
+		i.loadFromFile("../img/some_random_tower.jpg");
+		
+		Mat<sf::Uint8> gray(i.getSize().y, i.getSize().x);
+		ToGrayscale(i, gray);
+		ToSFMLImage(gray, i);
+		
+		sf::Texture t;
+		t.loadFromImage(i);
 
+		sf::Sprite s(t);
+		s.scale(sf::Vector2f(0.5f, 0.5f));
+		
 		m_Window.clear();
-		m_Window.draw(shape);
+		m_Window.draw(s);
 		m_Window.display();
 	}
 

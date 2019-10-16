@@ -18,21 +18,27 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ImgOps\ImgOps.cpp">
+    <ClCompile Include="src\Simulation\Simulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Simulation\Simulation.cpp">
+    <ClCompile Include="src\Simulation\Genetic\GeneticOptimizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImgOps\ImgOps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Simulation\Simulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Simulation\Genetic\GeneticOptimizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\ImgOps\ImgOps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ImgOps\Mat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Simulation\Simulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
