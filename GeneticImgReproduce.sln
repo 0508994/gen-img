@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.902
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeneticImgReproduce", "GeneticImgReproduce\GeneticImgReproduce.vcxproj", "{466BB267-C3C0-4B44-BE12-2426688F2B9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{466BB267-C3C0-4B44-BE12-2426688F2B9F}.Debug|x64.ActiveCfg = Debug|x64
+		{466BB267-C3C0-4B44-BE12-2426688F2B9F}.Debug|x64.Build.0 = Debug|x64
+		{466BB267-C3C0-4B44-BE12-2426688F2B9F}.Release|x64.ActiveCfg = Release|x64
+		{466BB267-C3C0-4B44-BE12-2426688F2B9F}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FC3A32A-447F-43B0-94EA-9F7729A311C4}
+	EndGlobalSection
+EndGlobal
