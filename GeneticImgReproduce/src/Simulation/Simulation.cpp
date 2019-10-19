@@ -9,7 +9,7 @@ namespace gir
 	Simulation::Simulation(unsigned int width, unsigned int height)
 		:m_WindowWidth(width),
 		 m_WindowHeight(height),
-		 m_Window(sf::VideoMode(width, height), "Image reconstruction")
+		 m_Window(sf::VideoMode(width, height), "Image Reconstruction")
 	{
 		m_Window.setFramerateLimit(FPS);
 		m_Running = true;
@@ -28,7 +28,7 @@ namespace gir
 			Mat<sf::Uint8> edge(i.getSize().y, i.getSize().x);
 
 			ToGrayscale(i, gray);
-			Sobel(gray, edge);
+			Scharr(gray, edge);
 			ToSFMLImage(edge, i);
 
 			sf::Texture t;
