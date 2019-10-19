@@ -1,5 +1,4 @@
 #pragma once
-#include <cassert>
 #include <cmath>
 #include "Mat.h"
 #include "SFML/Graphics/Image.hpp"
@@ -22,7 +21,7 @@ namespace gir
 
 	void ToGrayscale(const sf::Image& inRgba, Mat<Uint8>& outGray);
 	void ToSFMLImage(const Mat<Uint8>& inGray, sf::Image& outRgba);
-	void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel& kernel );
+	void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel<int, 3, 3>& kernel );
 	void Magnitude(const Mat<float>& gx, const Mat<float>& gy, Mat<Uint8>& result);
 	void Sobel(const Mat<Uint8>& src, Mat<Uint8>& dst);
 	void Prewitt(const Mat<Uint8>& src, Mat<Uint8>& dst);

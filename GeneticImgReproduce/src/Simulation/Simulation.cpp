@@ -23,12 +23,13 @@ namespace gir
 		{
 			sf::Image i;
 			i.loadFromFile("../img/wikipedia_sobel.png");
+			//i.loadFromFile("../img/some_random_tower.jpg");
 
 			Mat<sf::Uint8> gray(i.getSize().y, i.getSize().x);
 			Mat<sf::Uint8> edge(i.getSize().y, i.getSize().x);
 
 			ToGrayscale(i, gray);
-			Scharr(gray, edge);
+			Sobel(gray, edge);
 			ToSFMLImage(edge, i);
 
 			sf::Texture t;

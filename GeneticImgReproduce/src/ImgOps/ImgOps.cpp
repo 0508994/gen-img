@@ -36,10 +36,8 @@ namespace gir
 			}
 	}
 
-	void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel& kernel)
+	void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel<int, 3, 3>& kernel)
 	{
-		assert(kernel.size() == kernel[0].size() && kernel.size() % 2 != 0);
-
 		float sum;
 		int x1, y1;
 		unsigned int cols = src.Cols();
@@ -84,10 +82,8 @@ namespace gir
 		}
 	}
 
-	static void SimpleEdge(const Mat<Uint8>& src, Mat<Uint8>& dst, const Kernel& kx, const Kernel& ky)
+	static void SimpleEdge(const Mat<Uint8>& src, Mat<Uint8>& dst, const Kernel<int, 3, 3>& kx, const Kernel<int, 3, 3>& ky)
 	{
-		assert(kx.size() == kx[0].size() && ky.size() == ky[0].size() && kx.size() == ky.size() && (kx.size() % 2 != 0));
-
 		float dx, dy;
 		int x1, y1;
 		unsigned int cols = src.Cols();
@@ -111,27 +107,27 @@ namespace gir
 						
 						dx += kx[j + 1][k + 1] * src[y1][x1];
 						dy += ky[j + 1][k + 1] * src[y1][x1];
-
 					}
 				}
 
 				dst[y][x] = static_cast<Uint8>(clamp(hypot(dx, dy), 0.0f, 255.0f));
+				//dst[y][x] = dst[y][x] >= 70 ? 255 : 0;
 			}
 		}
 	}
 
 	void Sobel(const Mat<Uint8>& src, Mat<Uint8>& dst)
 	{
-		SimpleEdge(src, dst, sobelx3, sobely3);
+		SimpleEdge(src, dst, sobelx, sobely);
 	}
 
 	void Prewitt(const Mat<Uint8>& src, Mat<Uint8>& dst)
 	{
-		SimpleEdge(src, dst, prewittx3, prewitty3);
+		SimpleEdge(src, dst, prewittx, prewitty);
 	}
 
 	void Scharr(const Mat<Uint8>& src, Mat<Uint8>& dst)
 	{
-		SimpleEdge(src, dst, scharrx3, scharry3);
+		SimpleEdge(src, dst, scharrx, scharry);
 	}
 }
