@@ -22,14 +22,16 @@ namespace gir
 		if (m_Redraw)
 		{
 			sf::Image i;
-			i.loadFromFile("../img/wikipedia_sobel.png");
-			//i.loadFromFile("../img/some_random_tower.jpg");
+			//i.loadFromFile("../img/wikipedia_sobel.png");
+			//i.loadFromFile("../img/canny_blur_test.png");
+			i.loadFromFile("../img/some_random_tower.jpg");
 
 			Mat<sf::Uint8> gray(i.getSize().y, i.getSize().x);
 			Mat<sf::Uint8> edge(i.getSize().y, i.getSize().x);
 
 			ToGrayscale(i, gray);
-			Sobel(gray, edge);
+			//Sobel(gray, edge);
+			Canny(gray, edge, 0.5, 50, 255);
 			ToSFMLImage(edge, i);
 
 			sf::Texture t;

@@ -75,7 +75,7 @@ namespace gir
 	}
 
 	template<typename T>
-	inline void Mat<T>::Value(T value)
+	void Mat<T>::Value(T value)
 	{
 		if (m_Mat != nullptr)
 		{
