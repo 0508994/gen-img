@@ -14,6 +14,7 @@ namespace gir
 		Mat(const Mat<T>& other);
 		~Mat();
 
+		void Resize(unsigned int m, unsigned int n);
 		void Value(T value);
 		unsigned int ValueCount(T value);
 
@@ -40,7 +41,30 @@ namespace gir
 		{
 			unsigned int nel = m * n;
 			m_Mat[0] = new T[nel];
-			for (int i = 1; i < m; i++)
+			for (unsigned int i = 1; i < m; i++)
+				m_Mat[i] = m_Mat[i - 1] + n;
+		}
+	}
+
+	template <typename T>
+	void Mat<T>::Resize(unsigned int m, unsigned int n)
+	{
+		m_M = m;
+		m_N = n;
+		
+		if (m_Mat)
+		{
+			delete[] m_Mat[0];
+			delete[] m_Mat;
+		}
+
+		m_Mat = (m > 0 && n > 0) ? new T*[m] : nullptr;
+		
+		if (m_Mat)
+		{
+			unsigned int nel = m * n;
+			m_Mat[0] = new T[nel];
+			for (unsigned int i = 1; i < m; i++)
 				m_Mat[i] = m_Mat[i - 1] + n;
 		}
 	}
@@ -56,10 +80,10 @@ namespace gir
 			unsigned int nel = m * n;
 
 			m_Mat[0] = new T[nel];
-			for (int i = 1; i < m; i++)
+			for (unsigned int i = 1; i < m; i++)
 				m_Mat[i] = m_Mat[i - 1] + n;
 
-			for (int i = 0; i < nel; i++)
+			for (unsigned int i = 0; i < nel; i++)
 				m_Mat[0][i] = other.m_Mat[0][i];
 		}
 	}
@@ -74,26 +98,26 @@ namespace gir
 		}
 	}
 
-	template<typename T>
+	template <typename T>
 	void Mat<T>::Value(T value)
 	{
 		if (m_Mat != nullptr)
 		{
-			for (int i = 0; i < m_M; i++)
-				for (int j = 0; j < m_N; j++)
+			for (unsigned int i = 0; i < m_M; i++)
+				for (unsigned int j = 0; j < m_N; j++)
 					m_Mat[i][j] = value;
 		}
 	}
 
-	template<typename T>
+	template <typename T>
 	unsigned int Mat<T>::ValueCount(T value)
 	{
 		unsigned int count = 0;
 
 		if (m_Mat != nullptr)
 		{
-			for (int i = 0; i < m_M; i++)
-				for (int j = 0; j < m_N; j++)
+			for (unsigned int i = 0; i < m_M; i++)
+				for (unsigned int j = 0; j < m_N; j++)
 					if (m_Mat[i][j] == value)
 						count++;
 		}

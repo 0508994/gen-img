@@ -11,12 +11,12 @@ namespace gir
 		int x1, y1;
 		unsigned int cols = src.Cols();
 		unsigned int rows = src.Rows();
-		int kernelSize = kernel.size();
+		unsigned int kernelSize = kernel.size();
 		int kernelOffset = kernelSize / 2;
 
-		for (int y = 0; y < rows; y++)
+		for (unsigned int y = 0; y < rows; y++)
 		{
-			for (int x = 0; x < cols; x++)
+			for (unsigned int x = 0; x < cols; x++)
 			{
 				sum = 0.0f;
 				for (int k = -kernelOffset; k <= kernelOffset; k++)
@@ -40,8 +40,8 @@ namespace gir
 
 		Kernel<float, 3, 3> gauss;
 
-		for (int y = 0; y < 3; y++)
-			for (int x = 0; x < 3; x++)
+		for (unsigned int y = 0; y < 3; y++)
+			for (unsigned int x = 0; x < 3; x++)
 			{
 				gauss[y][x] = exp(-0.5 * (x * x + y * y) / (sigma * sigma))
 					/ (2.0 * M_PI * sigma * sigma);
@@ -63,9 +63,9 @@ namespace gir
 
 		out.Value(0);
 
-		for (int y = 1; y < nms.Rows() - 1; y++)
+		for (unsigned int y = 1; y < nms.Rows() - 1; y++)
 		{
-			for (int x = 1; x < nms.Cols() - 1; x++)
+			for (unsigned int x = 1; x < nms.Cols() - 1; x++)
 			{
 				if (nms[y][x] >= tmax && out[y][x] == 0)
 				{
@@ -104,12 +104,12 @@ namespace gir
 		int x1, y1;
 		unsigned int cols = src.Cols();
 		unsigned int rows = src.Rows();
-		int kernelSize = kx.size();
+		unsigned int kernelSize = kx.size();
 		int kernelOffset = kernelSize / 2;
 
-		for (int y = 0; y < rows; y++)
+		for (unsigned int y = 0; y < rows; y++)
 		{
-			for (int x = 0; x < cols; x++)
+			for (unsigned int x = 0; x < cols; x++)
 			{
 				dx = 0.0f;
 				dy = 0.0f;
@@ -137,9 +137,9 @@ namespace gir
 		const Uint8* pByteBuffer = inRgba.getPixelsPtr();
 		auto sfSize = inRgba.getSize();
 		
-		int numPixels = sfSize.x * sfSize.y;
+		unsigned int numPixels = sfSize.x * sfSize.y;
 
-		for (int i = 0; i < numPixels; ++i)
+		for (unsigned int i = 0; i < numPixels; ++i)
 		{
 			float red = pByteBuffer[4 * i] * 0.299f;
 			float green = pByteBuffer[4 * i + 1] * 0.587;
@@ -155,8 +155,8 @@ namespace gir
 
 	void ToSFMLImage(const Mat<Uint8>& inGray, sf::Image& outRgba)
 	{
-		for (int y = 0; y < inGray.Rows(); y++)
-			for (int x = 0; x < inGray.Cols(); x++)
+		for (unsigned int y = 0; y < inGray.Rows(); y++)
+			for (unsigned int x = 0; x < inGray.Cols(); x++)
 			{
 				Uint8 g = inGray[y][x];
 				outRgba.setPixel(x, y, sf::Color(g, g, g, 255));
@@ -187,7 +187,7 @@ namespace gir
 		int x1, y1;
 		unsigned int cols = src.Cols();
 		unsigned int rows = src.Rows();
-		int kernelSize = sobelx.size();
+		unsigned int kernelSize = sobelx.size();
 		int kernelOffset = kernelSize / 2;
 
 		Mat<float> temp(rows, cols);
@@ -198,9 +198,9 @@ namespace gir
 		Convolution(src, temp, Gaussian(sigma));
 		
 		// # Gradients
-		for (int y = 0; y < rows; y++)
+		for (unsigned int y = 0; y < rows; y++)
 		{
-			for (int x = 0; x < cols; x++)
+			for (unsigned int x = 0; x < cols; x++)
 			{
 				dx = 0.0f;
 				dy = 0.0f;
@@ -222,9 +222,9 @@ namespace gir
 		}
 
 		// # Non-maximum suppression
-		for (int y = 1; y < rows - 1; y++)
+		for (unsigned int y = 1; y < rows - 1; y++)
 		{
-			for (int x = 1; x < cols - 1; x++)
+			for (unsigned int x = 1; x < cols - 1; x++)
 			{
 				g = gradDir[y][x].first;
 				dir = gradDir[y][x].second;
@@ -245,9 +245,9 @@ namespace gir
 
 	void Threshold(Mat<Uint8>& src, Uint8 value)
 	{
-		for (int y = 0; y < src.Rows(); y++)
+		for (unsigned int y = 0; y < src.Rows(); y++)
 		{
-			for (int x = 0; x < src.Cols(); x++)
+			for (unsigned int x = 0; x < src.Cols(); x++)
 			{
 				src[y][x] = src[y][x] >= value ? 255 : 0;
 			}
