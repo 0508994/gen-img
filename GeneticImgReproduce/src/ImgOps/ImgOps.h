@@ -30,5 +30,5 @@ namespace gir
 	void Prewitt(const Mat<Uint8>& src, Mat<Uint8>& dst);
 	void Scharr(const Mat<Uint8>& src, Mat<Uint8>& dst);
 	void Canny(const Mat<Uint8>& src, Mat<Uint8>& dst, float sigma, float tmin, float tmax);
-
+	void Threshold(Mat<Uint8>& src, Uint8 value);
 }

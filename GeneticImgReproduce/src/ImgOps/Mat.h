@@ -6,18 +6,19 @@ namespace gir
 	class Mat
 	{
 	private:
-		int m_M, m_N;
+		unsigned int m_M, m_N;
 		T** m_Mat;
 	public:
 		Mat();
-		Mat(int m, int n);
+		Mat(unsigned int m, unsigned int n);
 		Mat(const Mat<T>& other);
 		~Mat();
 
 		void Value(T value);
+		unsigned int ValueCount(T value);
 
-		inline int Rows() const { return m_M; }
-		inline int Cols() const { return m_N; }
+		inline unsigned int Rows() const { return m_M; }
+		inline unsigned int Cols() const { return m_N; }
 
 		inline const T* operator[](int i) const { return m_Mat[i]; }
 		inline T* operator[](int i) { return m_Mat[i]; }
@@ -31,14 +32,13 @@ namespace gir
 		m_Mat = nullptr;
 	}
 
-
 	template <typename T>
-	Mat<T>::Mat(int m, int n)
+	Mat<T>::Mat(unsigned int m, unsigned int n)
 		:m_M(m), m_N(n), m_Mat((m > 0 && n > 0) ? new T*[m] : nullptr)
 	{
 		if (m_Mat)
 		{
-			int nel = m * n;
+			unsigned int nel = m * n;
 			m_Mat[0] = new T[nel];
 			for (int i = 1; i < m; i++)
 				m_Mat[i] = m_Mat[i - 1] + n;
@@ -51,9 +51,9 @@ namespace gir
 	{
 		if (m_Mat)
 		{
-			int m = other.m_M;
-			int n = other.m_N;
-			int nel = m * n;
+			unsigned int m = other.m_M;
+			unsigned int n = other.m_N;
+			unsigned int nel = m * n;
 
 			m_Mat[0] = new T[nel];
 			for (int i = 1; i < m; i++)
@@ -83,5 +83,21 @@ namespace gir
 				for (int j = 0; j < m_N; j++)
 					m_Mat[i][j] = value;
 		}
+	}
+
+	template<typename T>
+	unsigned int Mat<T>::ValueCount(T value)
+	{
+		unsigned int count = 0;
+
+		if (m_Mat != nullptr)
+		{
+			for (int i = 0; i < m_M; i++)
+				for (int j = 0; j < m_N; j++)
+					if (m_Mat[i][j] == value)
+						count++;
+		}
+
+		return count;
 	}
 }

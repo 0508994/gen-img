@@ -27,6 +27,9 @@
     <ClCompile Include="src\ImgOps\ImgOps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Simulation\Genetic\SolutionCandidate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Simulation\Simulation.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ImgOps\Kernels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Simulation\Genetic\SolutionCandidate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

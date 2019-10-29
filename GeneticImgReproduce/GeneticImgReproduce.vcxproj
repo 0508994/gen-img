@@ -146,12 +146,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Simulation\Genetic\SolutionCandidate.cpp" />
     <ClCompile Include="src\Simulation\Genetic\GeneticOptimizer.cpp" />
     <ClCompile Include="src\Simulation\Simulation.cpp" />
     <ClCompile Include="src\ImgOps\ImgOps.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Simulation\Genetic\SolutionCandidate.h" />
     <ClInclude Include="src\ImgOps\Kernels.h" />
     <ClInclude Include="src\Simulation\Genetic\GeneticOptimizer.h" />
     <ClInclude Include="src\Simulation\Simulation.h" />

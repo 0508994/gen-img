@@ -132,7 +132,6 @@ namespace gir
 		}
 	}
 
-
 	void ToGrayscale(const sf::Image& inRgba, Mat<Uint8>& outGray)
 	{
 		const Uint8* pByteBuffer = inRgba.getPixelsPtr();
@@ -244,4 +243,14 @@ namespace gir
 		Hysteresis(nms, dst, tmin, tmax);
 	}
 
+	void Threshold(Mat<Uint8>& src, Uint8 value)
+	{
+		for (int y = 0; y < src.Rows(); y++)
+		{
+			for (int x = 0; x < src.Cols(); x++)
+			{
+				src[y][x] = src[y][x] >= value ? 255 : 0;
+			}
+		}
+	}
 }

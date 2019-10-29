@@ -13,6 +13,8 @@ namespace gir
 		unsigned int m_WindowWidth;
 		unsigned int m_WindowHeight;
 		sf::RenderWindow m_Window;
+
+		GeneticOptimizer m_GeneticOptimizer;
 	public:
 		Simulation();
 		Simulation(unsigned int width, unsigned int height);

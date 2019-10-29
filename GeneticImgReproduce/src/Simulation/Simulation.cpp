@@ -30,8 +30,10 @@ namespace gir
 			Mat<sf::Uint8> edge(i.getSize().y, i.getSize().x);
 
 			ToGrayscale(i, gray);
-			//Sobel(gray, edge);
-			Canny(gray, edge, 0.5, 50, 255);
+			Sobel(gray, edge);
+			Threshold(edge, 125);
+			std::cout << edge.ValueCount(255) << std::endl;;
+			//Canny(gray, edge, 0.5, 50, 255);
 			ToSFMLImage(edge, i);
 
 			sf::Texture t;
