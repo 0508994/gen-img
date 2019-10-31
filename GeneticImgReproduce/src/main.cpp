@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "Simulation/Simulation.h"
 
-#define W 800
-#define H 600
+#define W 1280
+#define H 720
 
 int main()
 {
