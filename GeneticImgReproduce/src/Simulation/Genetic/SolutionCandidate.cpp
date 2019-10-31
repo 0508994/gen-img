@@ -2,30 +2,29 @@
 
 namespace gir
 {	
-	std::mt19937 SolutionCandidate::s_Generator((std::random_device())());
-
 	SolutionCandidate::SolutionCandidate() {}
 
 	SolutionCandidate::~SolutionCandidate() {}
 
-	SolutionCandidate::SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges)
-		:m_Fitness(0), m_LinesSize(lines->size()), m_LinesPtr(lines), m_Solution(threshEdges.Rows(), threshEdges.Cols()), m_TransformedLines(lines->size())
+	SolutionCandidate::SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng)
+		:m_Fitness(0),
+		m_LinesSize(lines->size()),
+		m_LinesPtr(lines),
+		m_Solution(threshEdges.Rows(), threshEdges.Cols()),
+		m_Rng(rng),
+		m_TransformedLines(lines->size())
 	{
 		float rows = static_cast<float>(threshEdges.Rows());
 		float cols = static_cast<float>(threshEdges.Cols());
 
 		m_Translations.reserve(m_LinesSize);
 		m_Rotations.reserve(m_LinesSize);
-
-		std::uniform_real_distribution<float> distrr(0.0f, rows);		// define the range for x-trans generator
-		std::uniform_real_distribution<float> distrc(0.0f, cols);		// define the range for y-trans generator
-		std::uniform_real_distribution<float> distra(0.0f, 360.0f);		// define the range for the rotation angle generator
 		
 		// Generate initial transformations randomly
 		for (unsigned int i = 0; i < m_LinesSize; i++)
 		{
-			m_Translations.emplace_back(sf::Vector2f(distrc(s_Generator), distrr(s_Generator)));
-			m_Rotations.emplace_back(distra(s_Generator));
+			m_Translations.emplace_back(sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY()));
+			m_Rotations.emplace_back(m_Rng->RandomAngle());
 		}
 	
 		ComputeSolution();
@@ -33,18 +32,22 @@ namespace gir
 	}
 
 	SolutionCandidate::SolutionCandidate(const SolutionCandidate& other)
-		:m_LinesPtr(other.m_LinesPtr),
+		:m_Fitness(other.m_Fitness),
 		m_LinesSize(other.m_LinesSize),
-		m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols()),
+		m_LinesPtr(other.m_LinesPtr),
+		m_Translations(other.m_Translations),
 		m_Rotations(other.m_Rotations),
-		m_Translations(other.m_Translations)
+		m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols()),
+		m_Rng(other.m_Rng)
 	{
 		// No need to copy m_Solution matrix just allocate the space
 	}
 
 	SolutionCandidate::SolutionCandidate(SolutionCandidate&& other)
-		:m_LinesPtr(other.m_LinesPtr),
-		m_Fitness(other.m_Fitness)
+		:m_Fitness(other.m_Fitness),
+		m_LinesSize(other.m_LinesSize),
+		m_LinesPtr(other.m_LinesPtr),
+		m_Rng(other.m_Rng)
 	{
 		m_Rotations = std::move(other.m_Rotations);
 		m_Translations = std::move(other.m_Translations);
@@ -56,8 +59,11 @@ namespace gir
 
 	SolutionCandidate& SolutionCandidate::operator=(SolutionCandidate&& other)
 	{
-		m_LinesPtr = other.m_LinesPtr;
 		m_Fitness = other.m_Fitness;
+		m_LinesPtr = other.m_LinesPtr;
+		m_LinesSize = other.m_LinesSize;
+		m_Fitness = other.m_Fitness;
+		m_Rng = other.m_Rng;
 
 		m_Rotations = std::move(other.m_Rotations);
 		m_Translations = std::move(other.m_Translations);
@@ -109,10 +115,9 @@ namespace gir
 	void SolutionCandidate::Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2)
 	{	
 		// child1, and child2 must be constructed before calling this function as copies of their respective parents
-		static std::uniform_int_distribution<unsigned int> distr(1, parent1.m_LinesSize - 1);
-		unsigned int splitIndex = distr(s_Generator);
-
-		for (unsigned int i = splitIndex; i < parent1.m_LinesSize; i++)
+		auto rng = parent1.m_Rng;
+		
+		for (unsigned int i = rng->RandomSplitIndex(); i < parent1.m_LinesSize; i++)
 		{
 			child1.m_Translations[i] = parent2.m_Translations[i];
 			child1.m_Rotations[i] = parent2.m_Rotations[i];
@@ -124,27 +129,20 @@ namespace gir
 
 	void SolutionCandidate::Mutate(double transMutChance, double rotMutChance)
 	{
-		static std::uniform_real_distribution<double> unif(0.0, 1.0);						 // probability generator
-		static std::uniform_int_distribution<unsigned int> distrMutLin(1, m_LinesSize / 4);  // number of mutations generator
-		static std::uniform_int_distribution<unsigned int> distrInd(1, m_LinesSize - 1);     // index generator
-		static std::uniform_real_distribution<float> distrr(0, m_Solution.Rows());           // random y-translation generator
-		static std::uniform_real_distribution<float> distrc(0, m_Solution.Cols());			 // random x-translation generator
-		static std::uniform_real_distribution<float> distra(0.0, 360.0);					 // define the range for the rotation angle generator
-
-		if (unif(s_Generator) <= transMutChance)
+		if (m_Rng->Probability() <= transMutChance)
 		{
 			// Mutate the random number of line translations between [1, m_LinesSize / 4]
 			// Replace the translation vectors with randomly generated ones
-			for (unsigned int i = 0; i < distrMutLin(s_Generator); i++)
-				m_Translations[distrInd(s_Generator)] = sf::Vector2f(distrc(s_Generator), distrr(s_Generator));
+			for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
+				m_Translations[m_Rng->RandomLineIndex()] = sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY());
 		}
 
-		if (unif(s_Generator) <= rotMutChance)
+		if (m_Rng->Probability() <= rotMutChance)
 		{
 			// Mutate the random number of line rotations between [1, m_LinesSize / 4]
 			// Replace the rotation angles with randomly generated ones
-			for (unsigned int i = 0; i < distrMutLin(s_Generator); i++)
-				m_Rotations[distrInd(s_Generator)] = distra(s_Generator);		
+			for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
+				m_Rotations[m_Rng->RandomLineIndex()] = m_Rng->RandomAngle();
 		}
 	}
 

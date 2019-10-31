@@ -1,6 +1,6 @@
 #pragma once
 #include "ImgOps.h"
-#include <random>
+#include "RNG.h"
 #include "SFML/Graphics/Transform.hpp"
 
 namespace gir
@@ -15,11 +15,11 @@ namespace gir
 		std::vector<sf::Vector2f> m_Translations;
 		std::vector<float> m_Rotations;
 		Mat<Uint8> m_Solution;
-	public:
-		static std::mt19937 s_Generator;							
+		
+		std::shared_ptr<RNG> m_Rng;
 	public:
 		SolutionCandidate();
-		SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges);
+		SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng);
 		SolutionCandidate(const SolutionCandidate& other);
 		SolutionCandidate(SolutionCandidate&& other);
 		~SolutionCandidate();
@@ -34,6 +34,9 @@ namespace gir
 		inline unsigned int GetFitness() const { return m_Fitness; }
 		inline bool operator< (const SolutionCandidate& other) const { return m_Fitness < other.m_Fitness; }
 		inline bool operator> (const SolutionCandidate& other) const { return m_Fitness > other.m_Fitness; }
+		inline bool operator<= (const SolutionCandidate& other) const { return m_Fitness <= other.m_Fitness; }
+		inline bool operator>= (const SolutionCandidate& other) const { return m_Fitness >= other.m_Fitness; }
+
 		
 	private:
 		void ClampLine(std::pair<sf::Vector2f, sf::Vector2f>& line);

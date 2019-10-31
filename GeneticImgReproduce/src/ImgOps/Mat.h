@@ -102,6 +102,8 @@ namespace gir
 	template <typename T>
 	Mat<T>& Mat<T>::operator=(Mat<T>&& other)
 	{
+		m_M = other.m_M;
+		m_N = other.m_N;
 		m_Mat = other.m_Mat;
 		other.m_Mat = nullptr;
 

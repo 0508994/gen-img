@@ -29,8 +29,7 @@ namespace gir
 
 		auto oiSize = m_OI.getSize();
 		m_CanvasTexture.create(oiSize.x, oiSize.y);
-
-		
+	
 		// Prepare the genetic algorithm
 		m_GeneticOptimizer.PrepareGA(m_OI, 125, 5, 15);
 	}

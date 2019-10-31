@@ -50,5 +50,8 @@
     <ClInclude Include="src\Simulation\Genetic\SolutionCandidate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Simulation\Genetic\RNG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
