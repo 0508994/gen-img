@@ -7,6 +7,7 @@
 int main()
 {
 	gir::Simulation sim(W, H);
+	sim.Prepare();
 	sim.Run();
 
 	return 0;

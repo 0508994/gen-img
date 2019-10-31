@@ -20,6 +20,7 @@ namespace gir
 		Simulation(unsigned int width, unsigned int height);
 		~Simulation();
 
+		void Prepare();
 		void Render();
 		void Run();
 		void HandleEvents();

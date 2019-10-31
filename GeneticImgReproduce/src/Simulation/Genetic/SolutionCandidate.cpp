@@ -1,10 +1,8 @@
 #include "SolutionCandidate.h"
 
 namespace gir
-{
-	std::random_device SolutionCandidate::s_Rd;				// obtain a random number from hardware
-	
-	std::mt19937 SolutionCandidate::s_Generator(s_Rd());	// seed the generator
+{	
+	std::mt19937 SolutionCandidate::s_Generator((std::random_device())());
 
 	SolutionCandidate::SolutionCandidate() {}
 
@@ -13,15 +11,15 @@ namespace gir
 	SolutionCandidate::SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges)
 		:m_Fitness(0), m_LinesSize(lines->size()), m_LinesPtr(lines), m_Solution(threshEdges.Rows(), threshEdges.Cols()), m_TransformedLines(lines->size())
 	{
-		unsigned int rows = threshEdges.Rows();
-		unsigned int cols = threshEdges.Cols();
+		float rows = static_cast<float>(threshEdges.Rows());
+		float cols = static_cast<float>(threshEdges.Cols());
 
 		m_Translations.reserve(m_LinesSize);
 		m_Rotations.reserve(m_LinesSize);
 
-		std::uniform_real_distribution<float> distrr(0, rows);		// define the range for x-trans generator
-		std::uniform_real_distribution<float> distrc(0, cols);		// define the range for y-trans generator
-		std::uniform_real_distribution<float> distra(0.0, 360.0);	// define the range for the rotation angle generator
+		std::uniform_real_distribution<float> distrr(0.0f, rows);		// define the range for x-trans generator
+		std::uniform_real_distribution<float> distrc(0.0f, cols);		// define the range for y-trans generator
+		std::uniform_real_distribution<float> distra(0.0f, 360.0f);		// define the range for the rotation angle generator
 		
 		// Generate initial transformations randomly
 		for (unsigned int i = 0; i < m_LinesSize; i++)
@@ -32,6 +30,43 @@ namespace gir
 	
 		ComputeSolution();
 		ComputeFitness(threshEdges);
+	}
+
+	SolutionCandidate::SolutionCandidate(const SolutionCandidate& other)
+		:m_LinesPtr(other.m_LinesPtr),
+		m_LinesSize(other.m_LinesSize),
+		m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols()),
+		m_Rotations(other.m_Rotations),
+		m_Translations(other.m_Translations)
+	{
+		// No need to copy m_Solution matrix just allocate the space
+	}
+
+	SolutionCandidate::SolutionCandidate(SolutionCandidate&& other)
+		:m_LinesPtr(other.m_LinesPtr),
+		m_Fitness(other.m_Fitness)
+	{
+		m_Rotations = std::move(other.m_Rotations);
+		m_Translations = std::move(other.m_Translations);
+		m_TransformedLines = std::move(other.m_TransformedLines);
+		m_Solution = std::move(other.m_Solution);
+
+		other.m_LinesPtr = nullptr;
+	}
+
+	SolutionCandidate& SolutionCandidate::operator=(SolutionCandidate&& other)
+	{
+		m_LinesPtr = other.m_LinesPtr;
+		m_Fitness = other.m_Fitness;
+
+		m_Rotations = std::move(other.m_Rotations);
+		m_Translations = std::move(other.m_Translations);
+		m_TransformedLines = std::move(other.m_TransformedLines);
+		m_Solution = std::move(other.m_Solution);
+
+		other.m_LinesPtr = nullptr;
+
+		return *this;
 	}
 
 	void SolutionCandidate::ComputeFitness(const Mat<Uint8>& threshEdges)
@@ -47,14 +82,14 @@ namespace gir
 
 		// Count the matching pixels
 		for (unsigned int i = 0; i < nel; i++)
-			m_Fitness += (solPtr[i] == threshEdgesPtr[i]);
+			m_Fitness += (solPtr[i] == 255 && 255 == threshEdgesPtr[i]); // count only the matching white pixels
 	}
 
 	void SolutionCandidate::ComputeSolution()
 	{
-
 		sf::Transform translation, rotation, transform;
-
+		auto& lines = *m_LinesPtr;
+		
 		m_Solution.Value(0);
 
 		for (unsigned int i = 0; i < m_LinesSize; i++)
@@ -63,23 +98,27 @@ namespace gir
 			rotation.rotate(m_Rotations[i]);
 			transform = translation * rotation;
 			
-			m_TransformedLines[i].first = transform.transformPoint(m_TransformedLines[i].first);
-			m_TransformedLines[i].second = transform.transformPoint(m_TransformedLines[i].second);
+			m_TransformedLines[i].first = transform.transformPoint(lines[i].first);
+			m_TransformedLines[i].second = transform.transformPoint(lines[i].second);
 
 			ClampLine(m_TransformedLines[i]);
 			BresenhamsLine(m_TransformedLines[i]);
 		}
 	}
 
-	void SolutionCandidate::Crossover(SolutionCandidate& other)
-	{									
-		static std::uniform_int_distribution<unsigned int> distr(1, m_LinesSize - 1);
+	void SolutionCandidate::Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2)
+	{	
+		// child1, and child2 must be constructed before calling this function as copies of their respective parents
+		static std::uniform_int_distribution<unsigned int> distr(1, parent1.m_LinesSize - 1);
 		unsigned int splitIndex = distr(s_Generator);
 
-		for (unsigned int i = splitIndex; i < m_LinesSize; i++)
+		for (unsigned int i = splitIndex; i < parent1.m_LinesSize; i++)
 		{
-			std::swap(m_Translations[i], other.m_Translations[i]);
-			std::swap(m_Rotations[i], other.m_Rotations[i]);
+			child1.m_Translations[i] = parent2.m_Translations[i];
+			child1.m_Rotations[i] = parent2.m_Rotations[i];
+			
+			child2.m_Translations[i] = parent1.m_Translations[i];
+			child2.m_Rotations[i] = parent1.m_Rotations[i];
 		}
 	}
 
@@ -114,10 +153,10 @@ namespace gir
 		float rows = static_cast<int>(m_Solution.Rows());
 		float cols = static_cast<int>(m_Solution.Cols());
 
-		line.first.x = Clamp(line.first.x, 0.0f, cols);
-		line.second.x = Clamp(line.second.x, 0.0f, cols);
-		line.first.y = Clamp(line.first.y, 0.0f, rows);
-		line.second.y = Clamp(line.second.y, 0.0f, rows);
+		line.first.x = Clamp(line.first.x, 0.0f, cols - 1);
+		line.second.x = Clamp(line.second.x, 0.0f, cols - 1);
+		line.first.y = Clamp(line.first.y, 0.0f, rows - 1);
+		line.second.y = Clamp(line.second.y, 0.0f, rows - 1);
 	}
 
 	void SolutionCandidate::BresenhamsLine(const std::pair<sf::Vector2f, sf::Vector2f>& line)
@@ -126,6 +165,9 @@ namespace gir
 		int x1 = static_cast<int>(line.second.x);
 		int y0 = static_cast<int>(line.first.y);
 		int y1 = static_cast<int>(line.second.y);
+
+		if (x1 < x0) std::swap(x1, x0);
+		if (y1 < y0) std::swap(y1, y0);
 
 		int dx, dy, p, x, y;
 

@@ -12,6 +12,7 @@ namespace gir
 		Mat();
 		Mat(unsigned int m, unsigned int n);
 		Mat(const Mat<T>& other);
+		Mat(Mat<T>&& other);
 		~Mat();
 
 		void Resize(unsigned int m, unsigned int n);
@@ -23,6 +24,8 @@ namespace gir
 
 		inline const T* operator[](int i) const { return m_Mat[i]; }
 		inline T* operator[](int i) { return m_Mat[i]; }
+
+		Mat<T>& operator=(Mat<T>&& other);
 	};
 
 
@@ -86,6 +89,23 @@ namespace gir
 			for (unsigned int i = 0; i < nel; i++)
 				m_Mat[0][i] = other.m_Mat[0][i];
 		}
+	}
+
+	template <typename T>
+	Mat<T>::Mat(Mat<T>&& other)
+		:m_M(other.m_M), m_N(other.m_N)
+	{
+		m_Mat = other.m_Mat;
+		other.m_Mat = nullptr;
+	}
+
+	template <typename T>
+	Mat<T>& Mat<T>::operator=(Mat<T>&& other)
+	{
+		m_Mat = other.m_Mat;
+		other.m_Mat = nullptr;
+
+		return *this;
 	}
 
 	template <typename T>

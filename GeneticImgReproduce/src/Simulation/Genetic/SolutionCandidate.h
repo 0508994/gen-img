@@ -16,16 +16,19 @@ namespace gir
 		std::vector<float> m_Rotations;
 		Mat<Uint8> m_Solution;
 	public:
-		static std::random_device s_Rd;								
 		static std::mt19937 s_Generator;							
 	public:
 		SolutionCandidate();
 		SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges);
+		SolutionCandidate(const SolutionCandidate& other);
+		SolutionCandidate(SolutionCandidate&& other);
 		~SolutionCandidate();
+
+		SolutionCandidate& operator=(SolutionCandidate&& other);
 
 		void ComputeFitness(const Mat<Uint8>& threshEdges);
 		void ComputeSolution();
-		void Crossover(SolutionCandidate& other);
+		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2);
 		void Mutate(double transMutChance, double rotMutChance);
 		
 		inline unsigned int GetFitness() const { return m_Fitness; }
