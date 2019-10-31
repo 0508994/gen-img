@@ -35,7 +35,7 @@ namespace gir
 		m_GeneticOptimizer.PrepareGA(m_OI, 125, 5, 15);
 	}
 
-	void Simulation::Render()
+	void Simulation::Render(const SolutionCandidate& solution)
 	{
 		m_Window.clear(sf::Color(125, 125, 125));
 		m_Window.draw(m_OISprite);
@@ -75,8 +75,8 @@ namespace gir
 			HandleEvents();
 			if (!m_Paused)
 			{
-				// gen algo stuff goes here
-				Render();
+				auto solution = m_GeneticOptimizer.RunIteration();
+				Render(solution);
 				m_Paused = true;
 			}
 		}

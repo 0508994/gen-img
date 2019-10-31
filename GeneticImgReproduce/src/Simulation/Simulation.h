@@ -27,7 +27,7 @@ namespace gir
 		~Simulation();
 
 		void Prepare();
-		void Render();
+		void Render(const SolutionCandidate& solution);
 		void Run();
 		void HandleEvents();
 	};

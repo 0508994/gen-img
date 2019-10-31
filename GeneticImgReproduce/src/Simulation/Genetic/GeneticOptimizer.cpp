@@ -77,4 +77,51 @@ namespace gir
 		return std::make_pair(&m_Population[i1], &m_Population[i2]);
 		//return std::make_pair(nullptr, nullptr);
 	}
+
+	const SolutionCandidate& GeneticOptimizer::RunIteration()
+	{
+		double accFitness = 0.0;
+		std::vector<SolutionCandidate> newPopulation;
+		std::vector<double> probas(m_PopSize);
+
+		// Copy the best solutions from the last iteration
+		newPopulation.reserve(m_PopSize);
+		for (unsigned i = 0; i < m_Elitismn; i++)
+			newPopulation.emplace_back(m_Population[i]);
+
+		while (newPopulation.size() < m_PopSize)
+		{
+			// Calculate the probability distribution
+			for (const auto& sc : m_Population)
+				accFitness += sc.GetFitness();	
+			for (unsigned int i = 0; i < m_PopSize; i++)
+				probas[i] = m_Population[i].GetFitness() / accFitness;
+
+			// Perform the selection
+			auto parents = Selection(probas);
+			auto& parent1 = *(parents.first);
+			auto& parent2 = *(parents.second);
+
+			// Crossover
+			SolutionCandidate child1(parent1), child2(parent2);
+			SolutionCandidate::Crossover(parent1, parent2, child1, child2);
+
+			// Mutate the children
+			child1.Mutate(m_TransMutChance, m_RotMutChance);
+			child2.Mutate(m_TransMutChance, m_RotMutChance);
+
+			// Calculate the fitness of the new units
+			child1.ComputeFitness(m_ThreshEdges);
+			child2.ComputeFitness(m_ThreshEdges);
+
+			// Add the children to the new population
+			newPopulation.emplace_back(std::move(child1));
+			newPopulation.emplace_back(std::move(child2));
+		}
+
+		m_Population.swap(newPopulation);
+		std::sort(m_Population.begin(), m_Population.end(), std::greater<SolutionCandidate>());
+
+		return m_Population[0];
+	}
 }
