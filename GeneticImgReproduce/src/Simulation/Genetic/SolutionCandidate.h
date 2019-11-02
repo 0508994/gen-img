@@ -37,9 +37,10 @@ namespace gir
 		inline bool operator<= (const SolutionCandidate& other) const { return m_Fitness <= other.m_Fitness; }
 		inline bool operator>= (const SolutionCandidate& other) const { return m_Fitness >= other.m_Fitness; }
 
-		
+		inline const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& TransformedLines() const { return m_TransformedLines; }
 	private:
 		void ClampLine(std::pair<sf::Vector2f, sf::Vector2f>& line);
-		void BresenhamsLine(const std::pair<sf::Vector2f, sf::Vector2f>& line);	
+		void BresenhamsLine(const std::pair<sf::Vector2f, sf::Vector2f>& line);
+		bool WithinBounds(const std::pair<sf::Vector2f, sf::Vector2f>& line) const;
 	};
 }

@@ -51,33 +51,44 @@ namespace gir
 		}
 
 		m_Rng = std::make_shared<RNG>(RNG(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() / 4));
-
-		for (const auto& line : m_Lines)
-			std::cout << line.first.x << "," << line.first.y << "\t" << line.second.x << "," << line.second.y << std::endl;
-		
+	
 		for (unsigned int i = 0; i < m_PopSize; i++)
 			m_Population.emplace_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
-
-		for (const auto& sc : m_Population)
-			std::cout << sc.GetFitness() << "\t";
 	}
 
-	std::pair<const SolutionCandidate*, const SolutionCandidate*> GeneticOptimizer::Selection(const std::vector<double>& probas) 
+	static bool SelectionCompare(std::pair<double, unsigned int> l, std::pair<double, unsigned int> r)
+	{
+		return l.first > r.first;
+	}
+
+	std::pair<const SolutionCandidate*, const SolutionCandidate*> GeneticOptimizer::Selection(const std::vector<double>& weights) 
 	{
 		//auto& generator = m_Generator;
 		//std::discrete_distribution<int> distr(probas.begin(), probas.end());
 		//std::generate(indices[0], indices[1], [&generator, &distr]() { return distr(generator); });
 		
-		static std::uniform_real_distribution<double> unif(0.0, 1.0);
+		//static std::uniform_real_distribution<double> unif(0.0, 1.0);
+
+		unsigned int i1, i2;
+		std::vector<std::pair<double, int>> weightedIndices;
+		weightedIndices.reserve(weights.size());
+
+		for (unsigned int i = 0; i < weights.size(); i++)
+			weightedIndices.emplace_back(std::make_pair(m_Rng->Probability() * weights[i], i));
 		
-		return std::make_pair(&m_Population[0], &m_Population[1]);
+		std::sort(weightedIndices.begin(), weightedIndices.end(), SelectionCompare);
+		
+		i1 = weightedIndices[0].second;
+		i2 = weightedIndices[1].second;
+
+		return std::make_pair(&m_Population[i1], &m_Population[i2]);
 	}
 
 	const SolutionCandidate& GeneticOptimizer::RunIteration()
 	{
 		double accFitness = 0.0;
 		std::vector<SolutionCandidate> newPopulation;
-		std::vector<double> probas(m_PopSize);
+		std::vector<double> weights(m_PopSize);
 
 		// Copy the best solutions from the last iteration
 		newPopulation.reserve(m_PopSize);
@@ -86,14 +97,17 @@ namespace gir
 			
 		// Calculate the probability distribution
 		for (const auto& sc : m_Population)
-			accFitness += sc.GetFitness();	
+			accFitness += sc.GetFitness();
+		
+		if (accFitness == 0.0) accFitness = 1.0;
+
 		for (unsigned int i = 0; i < m_PopSize; i++)
-			probas[i] = m_Population[i].GetFitness() / accFitness;
+			weights[i] = m_Population[i].GetFitness() / accFitness;
 
 		while (newPopulation.size() < m_PopSize)
 		{
 			// Perform the selection
-			auto parents = Selection(probas);
+			auto parents = Selection(weights);
 			auto& parent1 = *(parents.first);
 			auto& parent2 = *(parents.second);
 
@@ -101,7 +115,7 @@ namespace gir
 			SolutionCandidate child1(parent1), child2(parent2);
 			SolutionCandidate::Crossover(parent1, parent2, child1, child2);
 
-			// Mutate the children [TODO: maybe add nnealing ?]
+			// Mutate the children [TODO: maybe add annealing ?]
 			child1.Mutate(m_TransMutChance, m_RotMutChance);
 			child2.Mutate(m_TransMutChance, m_RotMutChance);
 

@@ -15,6 +15,14 @@ namespace gir
 		m_GeneticOptimizer(20, 0.001, 0.001, 2)
 	{
 		m_Window.setFramerateLimit(FPS);
+
+		m_Font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+		m_FpsText.setFont(m_Font);
+		m_FpsText.setCharacterSize(15);
+		m_FpsText.setFillColor(sf::Color::Yellow);
+		m_FpsText.setPosition(m_WindowWidth - 30, 5);
+
+
 		m_Running = true;
 		m_Paused = false;
 	}
@@ -29,9 +37,18 @@ namespace gir
 
 		auto oiSize = m_OI.getSize();
 		m_CanvasTexture.create(oiSize.x, oiSize.y);
-	
+		m_CanvasSprite.setTexture(m_CanvasTexture.getTexture());
+		m_CanvasSprite.setPosition(m_WindowWidth / 2 - oiSize.x / 2, m_WindowHeight / 2 - oiSize.y / 2);
+		
 		// Prepare the genetic algorithm
 		m_GeneticOptimizer.PrepareGA(m_OI, 125, 5, 15);
+		
+		// Prepare the Vertex array
+		m_Va.resize(m_GeneticOptimizer.LinesSize() * 2);
+		m_Va.setPrimitiveType(sf::Lines);
+		for (unsigned int i = 0; i < m_Va.getVertexCount(); i++)
+			m_Va[i].color = sf::Color::Black;
+
 	}
 
 	void Simulation::Render(const SolutionCandidate& solution)
@@ -39,36 +56,60 @@ namespace gir
 		m_Window.clear(sf::Color(125, 125, 125));
 		m_Window.draw(m_OISprite);
 		
+		m_CanvasTexture.clear(sf::Color(150, 150, 150));
+		
 		sf::CircleShape c(20.0);
 		c.setFillColor(sf::Color::Blue);
-		m_CanvasTexture.clear(sf::Color(150, 150, 150));
+		c.setPosition(m_Test, 0.0);
+		m_Test += 0.5;
 		m_CanvasTexture.draw(c);
+
+		unsigned int i = 0;
+		for (const auto& line : solution.TransformedLines())
+		{
+			m_Va[i].position = line.first;
+			m_Va[i + 1].position = line.second;
+			i += 2;
+		}
+
+		m_CanvasTexture.draw(m_Va);
 		m_CanvasTexture.display();
-		auto ts = m_CanvasTexture.getSize();
-		sf::Sprite test(m_CanvasTexture.getTexture());
-		test.setPosition(m_WindowWidth / 2 - ts.x / 2, m_WindowHeight / 2 - ts.y / 2);
-		m_Window.draw(test);
-
-		sf::Vertex xaxis[2] =
-		{
-			sf::Vertex(sf::Vector2f(0.0f, m_WindowHeight / 2), sf::Color::Black),
-			sf::Vertex(sf::Vector2f(m_WindowWidth, m_WindowHeight / 2), sf::Color::Black)
-		};
-
-		sf::Vertex yaxis[2] =
-		{
-			sf::Vertex(sf::Vector2f(m_WindowWidth / 2, 0.0f), sf::Color::Black),
-			sf::Vertex(sf::Vector2f(m_WindowWidth / 2, m_WindowHeight), sf::Color::Black)
-		};
 		
-		m_Window.draw(xaxis, 2, sf::Lines);
-		m_Window.draw(yaxis, 2, sf::Lines);
+		m_Window.draw(m_CanvasSprite);
+		
+		//sf::Vertex xaxis[2] =
+		//{
+		//	sf::Vertex(sf::Vector2f(0.0f, m_WindowHeight / 2), sf::Color::Black),
+		//	sf::Vertex(sf::Vector2f(m_WindowWidth, m_WindowHeight / 2), sf::Color::Black)
+		//};
 
+		//sf::Vertex yaxis[2] =
+		//{
+		//	sf::Vertex(sf::Vector2f(m_WindowWidth / 2, 0.0f), sf::Color::Black),
+		//	sf::Vertex(sf::Vector2f(m_WindowWidth / 2, m_WindowHeight), sf::Color::Black)
+		//};
+		//
+		//m_Window.draw(xaxis, 2, sf::Lines);
+		//m_Window.draw(yaxis, 2, sf::Lines);
+
+
+		// get fps
+		int fps = static_cast<int>(1.0 / m_Clock.getElapsedTime().asSeconds());
+		m_Clock.restart();
+
+		// draw fps to the screen
+		std::stringstream fpsSStream;
+		fpsSStream << fps;
+		m_FpsText.setString(fpsSStream.str());
+		m_Window.draw(m_FpsText);
 		m_Window.display();
+
 	}
 
 	void Simulation::Run()
 	{
+		m_Clock.restart();
+
 		while (m_Running)
 		{
 			HandleEvents();
@@ -76,7 +117,7 @@ namespace gir
 			{
 				auto solution = m_GeneticOptimizer.RunIteration();
 				Render(solution);
-				m_Paused = true;
+				m_Paused = false;
 			}
 		}
 

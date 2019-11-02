@@ -25,11 +25,12 @@ namespace gir
 	public:
 		GeneticOptimizer();
 		GeneticOptimizer(unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn);
+		~GeneticOptimizer();
 
 		void PrepareGA(const sf::Image& origImage, Uint8 threshold, unsigned int minLineLen, unsigned int maxLineLen);
 		const SolutionCandidate& RunIteration();
 
-		~GeneticOptimizer();
+		inline unsigned int LinesSize() const { return m_Lines.size(); }
 	private:
 		std::pair<const SolutionCandidate*,  const SolutionCandidate*> Selection(const std::vector<double>& probas);
 	};

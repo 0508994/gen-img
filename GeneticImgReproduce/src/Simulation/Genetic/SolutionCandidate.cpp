@@ -27,7 +27,6 @@ namespace gir
 			m_Rotations.emplace_back(m_Rng->RandomAngle());
 		}
 	
-		ComputeSolution();
 		ComputeFitness(threshEdges);
 	}
 
@@ -38,7 +37,8 @@ namespace gir
 		m_Translations(other.m_Translations),
 		m_Rotations(other.m_Rotations),
 		m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols()),
-		m_Rng(other.m_Rng)
+		m_Rng(other.m_Rng),
+		m_TransformedLines(m_LinesSize)
 	{
 		// No need to copy m_Solution matrix just allocate the space
 	}
@@ -79,6 +79,8 @@ namespace gir
 	{
 		//assert(m_Solution.Cols() == threshEdges.Cols() && m_Solution.Rows() == threshEdges.Rows());
 
+		ComputeSolution();
+
 		m_Fitness = 0;	
 		unsigned int nel = threshEdges.Cols() * threshEdges.Rows();
 
@@ -107,8 +109,9 @@ namespace gir
 			m_TransformedLines[i].first = transform.transformPoint(lines[i].first);
 			m_TransformedLines[i].second = transform.transformPoint(lines[i].second);
 
-			ClampLine(m_TransformedLines[i]);
-			BresenhamsLine(m_TransformedLines[i]);
+			//ClampLine(m_TransformedLines[i]);
+			if (WithinBounds(m_TransformedLines[i]))
+				BresenhamsLine(m_TransformedLines[i]);
 		}
 	}
 
@@ -157,6 +160,20 @@ namespace gir
 		line.second.y = Clamp(line.second.y, 0.0f, rows - 1);
 	}
 
+	bool SolutionCandidate::WithinBounds(const std::pair<sf::Vector2f, sf::Vector2f>& line) const
+	{
+		float rows = static_cast<int>(m_Solution.Rows());
+		float cols = static_cast<int>(m_Solution.Cols());
+
+		if (line.first.x < 0 || line.first.x >= cols ||
+			line.second.x < 0 || line.second.x >= cols ||
+			line.first.y < 0 || line.first.y >= rows ||
+			line.first.y < 0 || line.first.y >= rows)
+			return false;
+
+		return true;
+	}
+
 	void SolutionCandidate::BresenhamsLine(const std::pair<sf::Vector2f, sf::Vector2f>& line)
 	{
 		int x0 = static_cast<int>(line.first.x);
@@ -193,4 +210,5 @@ namespace gir
 			x = x + 1;
 		}
 	}
+
 }
