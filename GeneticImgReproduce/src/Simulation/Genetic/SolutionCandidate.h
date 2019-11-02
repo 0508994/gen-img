@@ -13,7 +13,7 @@ namespace gir
 		std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* m_LinesPtr;
 		std::vector<std::pair<sf::Vector2f, sf::Vector2f>> m_TransformedLines;
 		std::vector<sf::Vector2f> m_Translations;
-		std::vector<float> m_Rotations;
+		std::vector<double> m_Rotations;
 		Mat<Uint8> m_Solution;
 		
 		std::shared_ptr<RNG> m_Rng;

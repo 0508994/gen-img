@@ -12,7 +12,7 @@ namespace gir
 		:m_WindowWidth(width),
 		m_WindowHeight(height),
 		m_Window(sf::VideoMode(width, height), "Image Reconstruction", sf::Style::Titlebar | sf::Style::Close),
-		m_GeneticOptimizer(20, 0.001, 0.001, 2)
+		m_GeneticOptimizer(20, 0.001, 0.001, 0)
 	{
 		m_Window.setFramerateLimit(FPS);
 
@@ -41,7 +41,7 @@ namespace gir
 		m_CanvasSprite.setPosition(m_WindowWidth / 2 - oiSize.x / 2, m_WindowHeight / 2 - oiSize.y / 2);
 		
 		// Prepare the genetic algorithm
-		m_GeneticOptimizer.PrepareGA(m_OI, 125, 5, 15);
+		m_GeneticOptimizer.PrepareGA(m_OI, 125, 10, 50);
 		
 		// Prepare the Vertex array
 		m_Va.resize(m_GeneticOptimizer.LinesSize() * 2);
@@ -53,16 +53,16 @@ namespace gir
 
 	void Simulation::Render(const SolutionCandidate& solution)
 	{
-		m_Window.clear(sf::Color(125, 125, 125));
+		m_Window.clear(sf::Color(150, 150, 150));
 		m_Window.draw(m_OISprite);
 		
 		m_CanvasTexture.clear(sf::Color(150, 150, 150));
 		
-		sf::CircleShape c(20.0);
-		c.setFillColor(sf::Color::Blue);
-		c.setPosition(m_Test, 0.0);
-		m_Test += 0.5;
-		m_CanvasTexture.draw(c);
+		//sf::CircleShape c(20.0);
+		//c.setFillColor(sf::Color::Blue);
+		//c.setPosition(m_Test, 0.0);
+		//m_Test += 0.5;
+		//m_CanvasTexture.draw(c);
 
 		unsigned int i = 0;
 		for (const auto& line : solution.TransformedLines())
@@ -73,6 +73,7 @@ namespace gir
 		}
 
 		m_CanvasTexture.draw(m_Va);
+
 		m_CanvasTexture.display();
 		
 		m_Window.draw(m_CanvasSprite);
@@ -115,8 +116,9 @@ namespace gir
 			HandleEvents();
 			if (!m_Paused)
 			{
-				auto solution = m_GeneticOptimizer.RunIteration();
+				const auto& solution = m_GeneticOptimizer.RunIteration();
 				Render(solution);
+				std::cout << "Best solution fitness: " << solution.GetFitness() << std::endl;
 				m_Paused = false;
 			}
 		}

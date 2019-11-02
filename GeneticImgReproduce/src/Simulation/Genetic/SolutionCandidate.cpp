@@ -38,7 +38,7 @@ namespace gir
 		m_Rotations(other.m_Rotations),
 		m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols()),
 		m_Rng(other.m_Rng),
-		m_TransformedLines(m_LinesSize)
+		m_TransformedLines(other.m_TransformedLines)
 	{
 		// No need to copy m_Solution matrix just allocate the space
 	}
@@ -79,9 +79,10 @@ namespace gir
 	{
 		//assert(m_Solution.Cols() == threshEdges.Cols() && m_Solution.Rows() == threshEdges.Rows());
 
+		m_Fitness = 0;	
+		
 		ComputeSolution();
 
-		m_Fitness = 0;	
 		unsigned int nel = threshEdges.Cols() * threshEdges.Rows();
 
 		// Directly access the pixel data
@@ -95,23 +96,26 @@ namespace gir
 
 	void SolutionCandidate::ComputeSolution()
 	{
-		sf::Transform translation, rotation, transform;
 		auto& lines = *m_LinesPtr;
 		
 		m_Solution.Value(0);
 
 		for (unsigned int i = 0; i < m_LinesSize; i++)
 		{
-			translation.translate(m_Translations[i]);
-			rotation.rotate(m_Rotations[i]);
-			transform = translation * rotation;
+			sf::Transform transform;
+
+			transform.rotate(m_Rotations[i]);
+			transform.translate(m_Translations[i]);
 			
 			m_TransformedLines[i].first = transform.transformPoint(lines[i].first);
 			m_TransformedLines[i].second = transform.transformPoint(lines[i].second);
 
 			//ClampLine(m_TransformedLines[i]);
+			//BresenhamsLine(m_TransformedLines[i]);
+			
 			if (WithinBounds(m_TransformedLines[i]))
 				BresenhamsLine(m_TransformedLines[i]);
+
 		}
 	}
 
@@ -168,7 +172,7 @@ namespace gir
 		if (line.first.x < 0 || line.first.x >= cols ||
 			line.second.x < 0 || line.second.x >= cols ||
 			line.first.y < 0 || line.first.y >= rows ||
-			line.first.y < 0 || line.first.y >= rows)
+			line.second.y < 0 || line.second.y >= rows)
 			return false;
 
 		return true;

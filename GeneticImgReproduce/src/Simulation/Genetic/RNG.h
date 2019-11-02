@@ -29,7 +29,7 @@ namespace gir
 			m_Distr0toCols(0.0, static_cast<double>(nColumns)),
 			m_Distr0toRows(0.0, static_cast<double>(nRows)),
 			m_DistrLineInd(0, nLines - 1),
-			m_DistrLineSplitInd(1, nLines - 1),
+			m_DistrLineSplitInd(nLines / 2, nLines - 1),
 			m_DistrMutLin(0, nMaxLinesToMutate) {}
 
 		~RNG() {}

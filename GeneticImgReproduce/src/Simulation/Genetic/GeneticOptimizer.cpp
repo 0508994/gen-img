@@ -31,7 +31,7 @@ namespace gir
 		std::uniform_int_distribution<unsigned int> lineLenDistr(minLineLen, maxLineLen);
 
 		int whitePixelCount = m_ThreshEdges.ValueCount(255);
-		whitePixelCount += 0.5 * whitePixelCount; // add 50 % more wPixels
+		whitePixelCount += 0.3 * whitePixelCount; // add 30 % more wPixels
 		assert(whitePixelCount > 0);
 
 		int lineLen, halfLineLen;
@@ -50,7 +50,7 @@ namespace gir
 			m_Lines.emplace_back(std::make_pair(sf::Vector2f(-halfLineLen, 0.0f), sf::Vector2f(halfLineLen, 0.0f)));
 		}
 
-		m_Rng = std::make_shared<RNG>(RNG(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() / 4));
+		m_Rng = std::make_shared<RNG>(RNG(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.40 ));
 	
 		for (unsigned int i = 0; i < m_PopSize; i++)
 			m_Population.emplace_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
@@ -93,7 +93,7 @@ namespace gir
 		// Copy the best solutions from the last iteration
 		newPopulation.reserve(m_PopSize);
 		for (unsigned i = 0; i < m_Elitismn; i++)
-			newPopulation.emplace_back(m_Population[i]);
+			newPopulation.push_back(m_Population[i]);
 			
 		// Calculate the probability distribution
 		for (const auto& sc : m_Population)

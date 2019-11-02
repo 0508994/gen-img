@@ -30,9 +30,10 @@ namespace gir
 		void PrepareGA(const sf::Image& origImage, Uint8 threshold, unsigned int minLineLen, unsigned int maxLineLen);
 		const SolutionCandidate& RunIteration();
 
+		inline const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& Lines() const { return m_Lines; }
 		inline unsigned int LinesSize() const { return m_Lines.size(); }
 	private:
-		std::pair<const SolutionCandidate*,  const SolutionCandidate*> Selection(const std::vector<double>& probas);
+		std::pair<const SolutionCandidate*,  const SolutionCandidate*> Selection(const std::vector<double>& weights);
 	};
 }
 
