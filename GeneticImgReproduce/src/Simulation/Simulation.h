@@ -26,15 +26,15 @@ namespace gir
 		sf::Font m_Font;
 		sf::Text m_FpsText;
 
+		sf::Vertex m_Background[4];
 		bool m_Running;
 		bool m_Paused;
-		double m_Test = 0;
 	public:
 		Simulation();
-		Simulation(unsigned int width, unsigned int height);
+		Simulation(unsigned int width, unsigned int height, unsigned int popSize = 20, double transMutChance = 0.001, double rotMutChance = 0.001, unsigned int elitismn = 0);
 		~Simulation();
 
-		void Prepare();
+		void Prepare(std::string file, unsigned int threshold, unsigned int minLineLen, unsigned int maxLineLen);
 		void Render(const SolutionCandidate& solution);
 		void Run();
 		void HandleEvents();

@@ -4,10 +4,15 @@
 #define W 1280
 #define H 720
 
-int main()
+#define FILE "../img/e-tower1.jpg"
+#define THRESHOLD 125
+#define MINLINELEN 5
+#define MAXLINELEN 33
+
+int main(int argc, char* argv[])
 {
 	gir::Simulation sim(W, H);
-	sim.Prepare();
+	sim.Prepare(FILE, THRESHOLD, MINLINELEN, MAXLINELEN);
 	sim.Run();
 
 	return 0;

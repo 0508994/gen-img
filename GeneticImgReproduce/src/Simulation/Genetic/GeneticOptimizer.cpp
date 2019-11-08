@@ -31,7 +31,7 @@ namespace gir
 		std::uniform_int_distribution<unsigned int> lineLenDistr(minLineLen, maxLineLen);
 
 		int whitePixelCount = m_ThreshEdges.ValueCount(255);
-		whitePixelCount += 0.3 * whitePixelCount; // add 30 % more wPixels
+		whitePixelCount += 0.1 * whitePixelCount; // add 10 % more wPixels
 		assert(whitePixelCount > 0);
 
 		int lineLen, halfLineLen;
