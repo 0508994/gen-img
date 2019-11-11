@@ -17,7 +17,7 @@ namespace gir
 	{
 		m_Window.setFramerateLimit(FPS);
 
-		m_Font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+		m_Font.loadFromFile("C:/Windows/Fonts/Calibri.ttf");
 
 		m_Info.setFont(m_Font);
 		m_Info.setCharacterSize(15);
@@ -44,12 +44,18 @@ namespace gir
 		//Sobel(gray, edge);
 		//Threshold(edge, 125);
 		//ToSFMLImage(edge, m_OI);
-		
+
+		sf::Vector2u oiSize = m_OI.getSize();
+		float newImgWidth = 0.30 * m_WindowWidth;
+		float newImgHeight = 0.30 * m_WindowHeight;
+		float aspectRatio = oiSize.x / oiSize.y;
+		float newAspectRatio = newImgWidth / newImgHeight;
+		float scaleFactor = newAspectRatio > aspectRatio ? newImgHeight / oiSize.y : newImgWidth / oiSize.x;
+
 		m_OITexture.loadFromImage(m_OI);
 		m_OISprite.setTexture(m_OITexture);
-		m_OISprite.setScale(0.5, 0.5);
+		m_OISprite.setScale(scaleFactor, scaleFactor);
 
-		auto oiSize = m_OI.getSize();
 		m_CanvasTexture.create(oiSize.x, oiSize.y);
 		m_CanvasSprite.setTexture(m_CanvasTexture.getTexture());
 		m_CanvasSprite.setPosition(m_WindowWidth / 2 - oiSize.x / 2, m_WindowHeight / 2 - oiSize.y / 2);
@@ -66,7 +72,7 @@ namespace gir
 		m_ControlsInfo.setFont(m_Font);
 		m_ControlsInfo.setCharacterSize(15);
 		m_ControlsInfo.setFillColor(sf::Color::Blue);
-		m_ControlsInfo.setPosition(5, m_OI.getSize().y * 0.5 + 10);
+		m_ControlsInfo.setPosition(5, oiSize.y * scaleFactor + 10);
 	}
 
 	void Simulation::Render(const SolutionCandidate& solution)
@@ -99,7 +105,7 @@ namespace gir
 		// draw controls info to the screen
 		std::stringstream ss;
 		ss << "Framerate: " << fps << "\n";
-		ss << "Iterations to run at once: " << m_ItersToRun << "\n";
+		ss << "Iterations to run at once: " << m_ItersToRun << " (UP, DOWN)\n";
 		m_ControlsInfo.setString(ss.str());
 		m_Window.draw(m_ControlsInfo);
 
@@ -141,11 +147,11 @@ namespace gir
 				{
 					case sf::Keyboard::Up:
 						m_ItersToRun++;
-						m_ItersToRun = m_ItersToRun >= 10 ? 1 : m_ItersToRun;
+						m_ItersToRun = m_ItersToRun > 10 ? 1 : m_ItersToRun;
 						break;
 					case sf::Keyboard::Down:
 						m_ItersToRun--;
-						m_ItersToRun = m_ItersToRun > 0 ? m_ItersToRun : 1;
+						m_ItersToRun = m_ItersToRun > 0 ? m_ItersToRun : 10;
 					default:
 						break;
 				}

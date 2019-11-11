@@ -4,7 +4,7 @@
 #define W 1280
 #define H 720
 
-#define FILE "../img/e-tower1.jpg"
+#define FILE "../img/tower_resized.jpg"
 #define THRESHOLD 125
 #define MINLINELEN 5
 #define MAXLINELEN 33

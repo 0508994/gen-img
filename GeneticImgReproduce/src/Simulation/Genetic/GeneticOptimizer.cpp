@@ -88,6 +88,7 @@ namespace gir
 
 	const SolutionCandidate& GeneticOptimizer::RunIterations(unsigned int nIterations)
 	{
+		// TODO : DONT USE SOLUTION MATRIX AT ALL AND CALCULATE FITNESS IN THE BresenhamsLine() RIGHT AWAY !!!
 		std::vector<double> weights(m_PopSize);
 
 		for (unsigned int i = 0; i < nIterations; i++)
