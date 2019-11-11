@@ -6,7 +6,7 @@ namespace gir
 
 	SolutionCandidate::~SolutionCandidate() {}
 
-	SolutionCandidate::SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng)
+	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng)
 		:m_Fitness(0),
 		m_LinesSize(lines->size()),
 		m_LinesPtr(lines),
@@ -28,6 +28,18 @@ namespace gir
 		}
 	
 		ComputeFitness(threshEdges);
+	}
+
+	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, std::shared_ptr<RNG> rng)
+		:m_Fitness(0),
+		m_LinesSize(lines->size()),
+		m_LinesPtr(lines),
+		m_Solution(solutionRows, solutionCols),
+		m_Rng(rng),
+		m_TransformedLines(lines->size())
+	{
+		m_Translations.reserve(m_LinesSize);
+		m_Rotations.reserve(m_LinesSize);
 	}
 
 	SolutionCandidate::SolutionCandidate(const SolutionCandidate& other)
@@ -121,16 +133,25 @@ namespace gir
 
 	void SolutionCandidate::Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2)
 	{	
-		// child1, and child2 must be constructed before calling this function as copies of their respective parents
 		auto rng = parent1.m_Rng;
+		unsigned int splitIndex = rng->RandomSplitIndex();
 		
-		for (unsigned int i = rng->RandomSplitIndex(); i < parent1.m_LinesSize; i++)
+		for (unsigned int i = 0; i < splitIndex; i++)
 		{
-			child1.m_Translations[i] = parent2.m_Translations[i];
-			child1.m_Rotations[i] = parent2.m_Rotations[i];
+			child1.m_Translations.push_back(parent1.m_Translations[i]);
+			child1.m_Rotations.push_back(parent1.m_Rotations[i]);
+
+			child2.m_Translations.push_back(parent2.m_Translations[i]);
+			child2.m_Rotations.push_back(parent2.m_Rotations[i]);
+		}
+		
+		for (unsigned int i = splitIndex; i < parent1.m_LinesSize; i++)
+		{
+			child1.m_Translations.push_back(parent2.m_Translations[i]);
+			child1.m_Rotations.push_back(parent2.m_Rotations[i]);
 			
-			child2.m_Translations[i] = parent1.m_Translations[i];
-			child2.m_Rotations[i] = parent1.m_Rotations[i];
+			child2.m_Translations.push_back(parent1.m_Translations[i]);
+			child2.m_Rotations.push_back(parent1.m_Rotations[i]);
 		}
 	}
 
@@ -153,7 +174,7 @@ namespace gir
 		}
 	}
 
-	void SolutionCandidate::ClampLine(std::pair<sf::Vector2f, sf::Vector2f>& line)
+	void SolutionCandidate::ClampLine(Line& line)
 	{
 		float rows = static_cast<int>(m_Solution.Rows());
 		float cols = static_cast<int>(m_Solution.Cols());
@@ -164,7 +185,7 @@ namespace gir
 		line.second.y = Clamp(line.second.y, 0.0f, rows - 1);
 	}
 
-	bool SolutionCandidate::WithinBounds(const std::pair<sf::Vector2f, sf::Vector2f>& line) const
+	bool SolutionCandidate::WithinBounds(const Line& line) const
 	{
 		float rows = static_cast<int>(m_Solution.Rows());
 		float cols = static_cast<int>(m_Solution.Cols());
@@ -178,7 +199,7 @@ namespace gir
 		return true;
 	}
 
-	void SolutionCandidate::BresenhamsLine(const std::pair<sf::Vector2f, sf::Vector2f>& line)
+	void SolutionCandidate::BresenhamsLine(const Line& line)
 	{
 		int x0 = static_cast<int>(line.first.x);
 		int x1 = static_cast<int>(line.second.x);

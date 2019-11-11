@@ -24,11 +24,14 @@ namespace gir
 		sf::VertexArray m_Va;
 		sf::Clock m_Clock;
 		sf::Font m_Font;
-		sf::Text m_FpsText;
+		sf::Text m_Info;
+		sf::Text m_ControlsInfo;
 
 		sf::Vertex m_Background[4];
 		bool m_Running;
 		bool m_Paused;
+
+		unsigned int m_ItersToRun;
 	public:
 		Simulation();
 		Simulation(unsigned int width, unsigned int height, unsigned int popSize = 20, double transMutChance = 0.001, double rotMutChance = 0.001, unsigned int elitismn = 0);

@@ -5,13 +5,15 @@
 
 namespace gir
 {
+	typedef std::pair<sf::Vector2f, sf::Vector2f> Line;
+
 	class SolutionCandidate
 	{
 	private:
 		unsigned int m_Fitness = 0;
 		unsigned int m_LinesSize;
-		std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* m_LinesPtr;
-		std::vector<std::pair<sf::Vector2f, sf::Vector2f>> m_TransformedLines;
+		std::vector<Line>* m_LinesPtr;
+		std::vector<Line> m_TransformedLines;
 		std::vector<sf::Vector2f> m_Translations;
 		std::vector<double> m_Rotations;
 		Mat<Uint8> m_Solution;
@@ -19,7 +21,8 @@ namespace gir
 		std::shared_ptr<RNG> m_Rng;
 	public:
 		SolutionCandidate();
-		SolutionCandidate(std::vector<std::pair<sf::Vector2f, sf::Vector2f>>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng);
+		SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng);
+		SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, std::shared_ptr<RNG> rng);
 		SolutionCandidate(const SolutionCandidate& other);
 		SolutionCandidate(SolutionCandidate&& other);
 		~SolutionCandidate();
@@ -37,10 +40,10 @@ namespace gir
 		inline bool operator<= (const SolutionCandidate& other) const { return m_Fitness <= other.m_Fitness; }
 		inline bool operator>= (const SolutionCandidate& other) const { return m_Fitness >= other.m_Fitness; }
 
-		inline const std::vector<std::pair<sf::Vector2f, sf::Vector2f>>& TransformedLines() const { return m_TransformedLines; }
+		inline const std::vector<Line>& TransformedLines() const { return m_TransformedLines; }
 	private:
-		void ClampLine(std::pair<sf::Vector2f, sf::Vector2f>& line);
-		void BresenhamsLine(const std::pair<sf::Vector2f, sf::Vector2f>& line);
-		bool WithinBounds(const std::pair<sf::Vector2f, sf::Vector2f>& line) const;
+		void ClampLine(Line& line);
+		void BresenhamsLine(const Line& line);
+		bool WithinBounds(const Line& line) const;
 	};
 }

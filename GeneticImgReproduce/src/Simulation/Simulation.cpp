@@ -12,15 +12,17 @@ namespace gir
 		:m_WindowWidth(width),
 		m_WindowHeight(height),
 		m_Window(sf::VideoMode(width, height), "Image Reconstruction", sf::Style::Titlebar | sf::Style::Close),
-		m_GeneticOptimizer(popSize, transMutChance, rotMutChance, elitismn)
+		m_GeneticOptimizer(popSize, transMutChance, rotMutChance, elitismn),
+		m_ItersToRun(1)
 	{
 		m_Window.setFramerateLimit(FPS);
 
 		m_Font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
-		m_FpsText.setFont(m_Font);
-		m_FpsText.setCharacterSize(15);
-		m_FpsText.setFillColor(sf::Color::Blue);
-		m_FpsText.setPosition(m_WindowWidth - 70, 5);
+
+		m_Info.setFont(m_Font);
+		m_Info.setCharacterSize(15);
+		m_Info.setFillColor(sf::Color::Blue);
+		m_Info.setPosition(m_WindowWidth - 130, 55);
 
 		m_Background[0] = sf::Vertex(sf::Vector2f(0, m_WindowHeight), sf::Color(125, 125, 125));
 		m_Background[1] = sf::Vertex(sf::Vector2f(0, 0), sf::Color(125, 125, 125));
@@ -60,6 +62,11 @@ namespace gir
 		m_Va.setPrimitiveType(sf::Lines);
 		for (unsigned int i = 0; i < m_Va.getVertexCount(); i++)
 			m_Va[i].color = sf::Color::Black;
+
+		m_ControlsInfo.setFont(m_Font);
+		m_ControlsInfo.setCharacterSize(15);
+		m_ControlsInfo.setFillColor(sf::Color::Blue);
+		m_ControlsInfo.setPosition(5, m_OI.getSize().y * 0.5 + 10);
 	}
 
 	void Simulation::Render(const SolutionCandidate& solution)
@@ -84,32 +91,21 @@ namespace gir
 		
 		m_Window.draw(m_CanvasSprite);
 		
-		//sf::Vertex xaxis[2] =
-		//{
-		//	sf::Vertex(sf::Vector2f(0.0f, m_WindowHeight / 2), sf::Color::Black),
-		//	sf::Vertex(sf::Vector2f(m_WindowWidth, m_WindowHeight / 2), sf::Color::Black)
-		//};
-
-		//sf::Vertex yaxis[2] =
-		//{
-		//	sf::Vertex(sf::Vector2f(m_WindowWidth / 2, 0.0f), sf::Color::Black),
-		//	sf::Vertex(sf::Vector2f(m_WindowWidth / 2, m_WindowHeight), sf::Color::Black)
-		//};
-		//
-		//m_Window.draw(xaxis, 2, sf::Lines);
-		//m_Window.draw(yaxis, 2, sf::Lines);
-
 
 		// get fps
 		int fps = static_cast<int>(1.0 / m_Clock.getElapsedTime().asSeconds());
 		m_Clock.restart();
 
-		// draw fps to the screen
-		std::stringstream fpsSStream;
-		fpsSStream << "FPS: ";
-		fpsSStream << fps;
-		m_FpsText.setString(fpsSStream.str());
-		m_Window.draw(m_FpsText);
+		// draw controls info to the screen
+		std::stringstream ss;
+		ss << "Framerate: " << fps << "\n";
+		ss << "Iterations to run at once: " << m_ItersToRun << "\n";
+		m_ControlsInfo.setString(ss.str());
+		m_Window.draw(m_ControlsInfo);
+
+		// draw info string to the screen
+		m_Window.draw(m_Info);
+
 		m_Window.display();
 	}
 
@@ -122,10 +118,9 @@ namespace gir
 			HandleEvents();
 			if (!m_Paused)
 			{
-				const auto& solution = m_GeneticOptimizer.RunIteration();
+				const auto& solution = m_GeneticOptimizer.RunIterations(m_ItersToRun);
+				m_Info.setString(m_GeneticOptimizer.GetInfo());
 				Render(solution);
-				//std::cout << "Best solution fitness: " << solution.GetFitness() << std::endl;
-				//m_Paused = false;
 			}
 		}
 
@@ -140,6 +135,21 @@ namespace gir
 			// All for now
 			if (e.type == sf::Event::Closed)
 				m_Running = false;
+			else if (e.type == sf::Event::KeyPressed)
+			{
+				switch (e.key.code)
+				{
+					case sf::Keyboard::Up:
+						m_ItersToRun++;
+						m_ItersToRun = m_ItersToRun >= 10 ? 1 : m_ItersToRun;
+						break;
+					case sf::Keyboard::Down:
+						m_ItersToRun--;
+						m_ItersToRun = m_ItersToRun > 0 ? m_ItersToRun : 1;
+					default:
+						break;
+				}
+			}
 		}
 
 	}

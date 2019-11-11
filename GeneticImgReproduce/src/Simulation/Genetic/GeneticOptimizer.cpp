@@ -20,8 +20,10 @@ namespace gir
 		assert(maxLineLen > minLineLen);
 
 		auto size = origImage.getSize();
-		Mat<Uint8> gray(size.y, size.x);
-		m_ThreshEdges.Resize(size.y, size.x);
+		m_ImgRows = size.y;
+		m_ImgCols = size.x;
+		Mat<Uint8> gray(m_ImgRows, m_ImgCols);
+		m_ThreshEdges.Resize(m_ImgRows, m_ImgCols);
 
 		ToGrayscale(origImage, gray);
 		Sobel(gray, m_ThreshEdges);
@@ -84,53 +86,70 @@ namespace gir
 		return std::make_pair(&m_Population[i1], &m_Population[i2]);
 	}
 
-	const SolutionCandidate& GeneticOptimizer::RunIteration()
+	const SolutionCandidate& GeneticOptimizer::RunIterations(unsigned int nIterations)
 	{
-		double accFitness = 0.0;
-		std::vector<SolutionCandidate> newPopulation;
 		std::vector<double> weights(m_PopSize);
 
-		// Copy the best solutions from the last iteration
-		newPopulation.reserve(m_PopSize);
-		for (unsigned i = 0; i < m_Elitismn; i++)
-			newPopulation.push_back(m_Population[i]);
-			
-		// Calculate the probability distribution
-		for (const auto& sc : m_Population)
-			accFitness += sc.GetFitness();
-		
-		if (accFitness == 0.0) accFitness = 1.0;
-
-		for (unsigned int i = 0; i < m_PopSize; i++)
-			weights[i] = m_Population[i].GetFitness() / accFitness;
-
-		while (newPopulation.size() < m_PopSize)
+		for (unsigned int i = 0; i < nIterations; i++)
 		{
-			// Perform the selection
-			auto parents = Selection(weights);
-			auto& parent1 = *(parents.first);
-			auto& parent2 = *(parents.second);
+			double accFitness = 0.0;
+			std::vector<SolutionCandidate> newPopulation;
 
-			// Crossover
-			SolutionCandidate child1(parent1), child2(parent2);
-			SolutionCandidate::Crossover(parent1, parent2, child1, child2);
+			// Copy the best solutions from the last iteration
+			newPopulation.reserve(m_PopSize);
+			for (unsigned i = 0; i < m_Elitismn; i++)
+				newPopulation.push_back(m_Population[i]);
 
-			// Mutate the children [TODO: maybe add annealing ?]
-			child1.Mutate(m_TransMutChance, m_RotMutChance);
-			child2.Mutate(m_TransMutChance, m_RotMutChance);
+			// Calculate the probability distribution
+			for (const auto& sc : m_Population)
+				accFitness += sc.GetFitness();
 
-			// Calculate the fitness of the new units
-			child1.ComputeFitness(m_ThreshEdges);
-			child2.ComputeFitness(m_ThreshEdges);
+			if (accFitness == 0.0) accFitness = 1.0;
 
-			// Add the children to the new population
-			newPopulation.emplace_back(std::move(child1));
-			newPopulation.emplace_back(std::move(child2));
+			for (unsigned int i = 0; i < m_PopSize; i++)
+				weights[i] = m_Population[i].GetFitness() / accFitness;
+
+			while (newPopulation.size() < m_PopSize)
+			{
+				// Perform the selection
+				auto parents = Selection(weights);
+				auto& parent1 = *(parents.first);
+				auto& parent2 = *(parents.second);
+
+				// Crossover
+				SolutionCandidate child1(&m_Lines, m_ImgRows, m_ImgCols, m_Rng), child2(&m_Lines, m_ImgRows, m_ImgCols, m_Rng);
+				SolutionCandidate::Crossover(parent1, parent2, child1, child2);
+
+				// Mutate the children [TODO: maybe add annealing ?]
+				child1.Mutate(m_TransMutChance, m_RotMutChance);
+				child2.Mutate(m_TransMutChance, m_RotMutChance);
+
+				// Calculate the fitness of the new units
+				child1.ComputeFitness(m_ThreshEdges);
+				child2.ComputeFitness(m_ThreshEdges);
+
+				// Add the children to the new population
+				newPopulation.emplace_back(std::move(child1));
+				newPopulation.emplace_back(std::move(child2));
+			}
+
+			m_Iteration++;
+			m_Population.swap(newPopulation);
+			std::sort(m_Population.begin(), m_Population.end(), std::greater<SolutionCandidate>());
 		}
 
-		m_Population.swap(newPopulation);
-		std::sort(m_Population.begin(), m_Population.end(), std::greater<SolutionCandidate>());
-
 		return m_Population[0];
+	}
+
+
+	std::string GeneticOptimizer::GetInfo() const
+	{
+		std::stringstream ss;
+		ss << "Iteration: " << m_Iteration << "\n\n";
+
+		for (unsigned int i = 0; i < m_PopSize; i++)
+			ss << "Fitness " << i << " :" << m_Population[i].GetFitness() << "\n";
+
+		return ss.str();
 	}
 }
