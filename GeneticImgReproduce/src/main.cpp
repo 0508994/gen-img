@@ -4,14 +4,18 @@
 #define W 1280
 #define H 720
 
-#define FILE "../img/tower_resized.jpg"
+#define FILE "../img/doh.png"
+#define POPSIZE 20
+#define ROTMUTCHANCE 0.2
+#define TRANSMUTCHANCE 0.2
+#define ELITISM 2
 #define THRESHOLD 125
-#define MINLINELEN 5
-#define MAXLINELEN 33
+#define MINLINELEN 10
+#define MAXLINELEN 35
 
 int main(int argc, char* argv[])
 {
-	gir::Simulation sim(W, H);
+	gir::Simulation sim(W, H, POPSIZE, TRANSMUTCHANCE, ROTMUTCHANCE, ELITISM);
 	sim.Prepare(FILE, THRESHOLD, MINLINELEN, MAXLINELEN);
 	sim.Run();
 

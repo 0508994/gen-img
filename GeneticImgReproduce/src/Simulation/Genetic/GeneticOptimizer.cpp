@@ -32,8 +32,7 @@ namespace gir
 		std::mt19937 gen((std::random_device())());
 		std::uniform_int_distribution<unsigned int> lineLenDistr(minLineLen, maxLineLen);
 
-		int whitePixelCount = m_ThreshEdges.ValueCount(255);
-		whitePixelCount += 0.1 * whitePixelCount; // add 10 % more wPixels
+		int whitePixelCount = m_ThreshEdges.ValueCount(255) << 1; 
 		assert(whitePixelCount > 0);
 
 		int lineLen, halfLineLen;
@@ -52,7 +51,7 @@ namespace gir
 			m_Lines.emplace_back(std::make_pair(sf::Vector2f(-halfLineLen, 0.0f), sf::Vector2f(halfLineLen, 0.0f)));
 		}
 
-		m_Rng = std::make_shared<RNG>(RNG(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.40 ));
+		m_Rng = std::make_shared<RNG>(RNG(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.8));
 	
 		for (unsigned int i = 0; i < m_PopSize; i++)
 			m_Population.emplace_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
@@ -88,7 +87,6 @@ namespace gir
 
 	const SolutionCandidate& GeneticOptimizer::RunIterations(unsigned int nIterations)
 	{
-		// TODO : DONT USE SOLUTION MATRIX AT ALL AND CALCULATE FITNESS IN THE BresenhamsLine() RIGHT AWAY !!!
 		std::vector<double> weights(m_PopSize);
 
 		for (unsigned int i = 0; i < nIterations; i++)
@@ -98,7 +96,7 @@ namespace gir
 
 			// Copy the best solutions from the last iteration
 			newPopulation.reserve(m_PopSize);
-			for (unsigned i = 0; i < m_Elitismn; i++)
+			for (unsigned int i = 0; i < m_Elitismn; i++)
 				newPopulation.push_back(m_Population[i]);
 
 			// Calculate the probability distribution

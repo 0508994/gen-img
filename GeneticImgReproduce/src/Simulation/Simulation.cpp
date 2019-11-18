@@ -33,12 +33,12 @@ namespace gir
 		// Prepare the original sprite
 		m_OI.loadFromFile(file);
 		
-		//Mat<Uint8> gray(m_OI.getSize().y, m_OI.getSize().x);
-		//Mat<Uint8> edge(m_OI.getSize().y, m_OI.getSize().x);
-		//ToGrayscale(m_OI, gray);
-		//Sobel(gray, edge);
-		//Threshold(edge, 125);
-		//ToSFMLImage(edge, m_OI);
+		Mat<Uint8> gray(m_OI.getSize().y, m_OI.getSize().x);
+		Mat<Uint8> edge(m_OI.getSize().y, m_OI.getSize().x);
+		ToGrayscale(m_OI, gray);
+		Sobel(gray, edge);
+		Threshold(edge, 125);
+		ToSFMLImage(edge, m_OI);
 
 		sf::Vector2u oiSize = m_OI.getSize();
 		float newImgWidth = 0.30 * m_WindowWidth;
@@ -65,8 +65,8 @@ namespace gir
 			m_Va[i].color = sf::Color::Black;
 
 		m_Info.setFont(m_Font);
-		m_Info.setCharacterSize(15);
-		m_Info.setFillColor(sf::Color::Blue);
+		m_Info.setCharacterSize(16);
+		m_Info.setFillColor(sf::Color::Cyan);
 		m_Info.setPosition(5, oiSize.y * scaleFactor + 10);
 	}
 
@@ -97,10 +97,9 @@ namespace gir
 		int fps = static_cast<int>(1.0 / m_Clock.getElapsedTime().asSeconds());
 		m_Clock.restart();
 
-		// draw controls info to the screen
 		std::stringstream ss;
 		ss << "Framerate: " << fps << "\n";
-		ss << "Iterations to run at once: " << m_ItersToRun << " (UP, DOWN)\n";
+		ss << "Iterations to run at once: " << m_ItersToRun << "\n";
 		ss << m_GeneticOptimizer.GetInfo();
 		m_Info.setString(ss.str());
 		m_Window.draw(m_Info);

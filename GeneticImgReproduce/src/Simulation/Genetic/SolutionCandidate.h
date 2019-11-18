@@ -13,10 +13,8 @@ namespace gir
 		unsigned int m_Fitness = 0;
 		unsigned int m_LinesSize;
 		std::vector<Line>* m_LinesPtr;
-		std::vector<Line> m_TransformedLines;
 		std::vector<sf::Vector2f> m_Translations;
 		std::vector<double> m_Rotations;
-		Mat<Uint8> m_Solution;
 		
 		std::shared_ptr<RNG> m_Rng;
 	public:
@@ -30,7 +28,6 @@ namespace gir
 		SolutionCandidate& operator=(SolutionCandidate&& other);
 
 		void ComputeFitness(const Mat<Uint8>& threshEdges);
-		void ComputeSolution();
 		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2);
 		void Mutate(double transMutChance, double rotMutChance);
 		
@@ -40,10 +37,9 @@ namespace gir
 		inline bool operator<= (const SolutionCandidate& other) const { return m_Fitness <= other.m_Fitness; }
 		inline bool operator>= (const SolutionCandidate& other) const { return m_Fitness >= other.m_Fitness; }
 
-		inline const std::vector<Line>& TransformedLines() const { return m_TransformedLines; }
+		std::vector<Line> TransformedLines() const;
 	private:
-		void ClampLine(Line& line);
-		void BresenhamsLine(const Line& line);
-		bool WithinBounds(const Line& line) const;
+		void ClampLine(Line& line, unsigned int rows, unsigned int columns) const;
+		bool WithinBounds(const Line& line, unsigned int rows, unsigned int columns) const;
 	};
 }
