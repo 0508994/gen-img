@@ -23,14 +23,14 @@ namespace gir
 		RNG() {};
 		
 		RNG(unsigned int nRows, unsigned int nColumns, unsigned int nLines, unsigned int nMaxLinesToMutate)
-			:m_Generator((std::random_device())()),
-			m_DistrAngle(0.0, 360.0),
-			m_Prob(0.0, 1.0),
-			m_Distr0toCols(0.0, static_cast<double>(nColumns)),
-			m_Distr0toRows(0.0, static_cast<double>(nRows)),
-			m_DistrLineInd(0, nLines - 1),
-			m_DistrLineSplitInd(nLines / 2, nLines - 1),
-			m_DistrMutLin(0, nMaxLinesToMutate) {}
+			: m_Generator((std::random_device())())
+			, m_DistrAngle(0.0, 360.0)
+			, m_Prob(0.0, 1.0)
+			, m_Distr0toCols(0.0, static_cast<double>(nColumns))
+			, m_Distr0toRows(0.0, static_cast<double>(nRows))
+			, m_DistrLineInd(0, nLines - 1)
+			, m_DistrLineSplitInd(nLines / 2, nLines - 1)
+			, m_DistrMutLin(0, nMaxLinesToMutate) {}
 
 		~RNG() {}
 

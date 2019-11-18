@@ -7,10 +7,10 @@ namespace gir
 	GeneticOptimizer::~GeneticOptimizer() {}
 
 	GeneticOptimizer::GeneticOptimizer(unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn)
-		:m_PopSize(popSize),
-		m_Elitismn(elitismn),
-		m_TransMutChance(transMutChance),
-		m_RotMutChance(rotMutChance)	
+		: m_PopSize(popSize)
+		, m_Elitismn(elitismn)
+		, m_TransMutChance(transMutChance)
+		, m_RotMutChance(rotMutChance)
 	{
 		m_Population.reserve(m_PopSize);
 	}
@@ -146,7 +146,7 @@ namespace gir
 	std::string GeneticOptimizer::GetInfo() const
 	{
 		std::stringstream ss;
-		ss << "Iteration: " << m_Iteration << "\n\n";
+		ss << "Iteration: " << m_Iteration << "\n";
 
 		for (unsigned int i = 0; i < m_PopSize; i++)
 			ss << "Fitness " << i << " :" << m_Population[i].GetFitness() << "\n";

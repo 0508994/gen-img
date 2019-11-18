@@ -7,12 +7,12 @@ namespace gir
 	SolutionCandidate::~SolutionCandidate() {}
 
 	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng)
-		:m_Fitness(0),
-		m_LinesSize(lines->size()),
-		m_LinesPtr(lines),
-		m_Solution(threshEdges.Rows(), threshEdges.Cols()),
-		m_Rng(rng),
-		m_TransformedLines(lines->size())
+		: m_Fitness(0)
+		, m_LinesSize(lines->size())
+		, m_LinesPtr(lines)
+		, m_Solution(threshEdges.Rows(), threshEdges.Cols())
+		, m_Rng(rng)
+		, m_TransformedLines(lines->size())
 	{
 		float rows = static_cast<float>(threshEdges.Rows());
 		float cols = static_cast<float>(threshEdges.Cols());
@@ -31,35 +31,35 @@ namespace gir
 	}
 
 	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, std::shared_ptr<RNG> rng)
-		:m_Fitness(0),
-		m_LinesSize(lines->size()),
-		m_LinesPtr(lines),
-		m_Solution(solutionRows, solutionCols),
-		m_Rng(rng),
-		m_TransformedLines(lines->size())
+		: m_Fitness(0)
+		, m_LinesSize(lines->size())
+		, m_LinesPtr(lines)
+		, m_Solution(solutionRows, solutionCols)
+		, m_Rng(rng)
+		, m_TransformedLines(lines->size())
 	{
 		m_Translations.reserve(m_LinesSize);
 		m_Rotations.reserve(m_LinesSize);
 	}
 
 	SolutionCandidate::SolutionCandidate(const SolutionCandidate& other)
-		:m_Fitness(other.m_Fitness),
-		m_LinesSize(other.m_LinesSize),
-		m_LinesPtr(other.m_LinesPtr),
-		m_Translations(other.m_Translations),
-		m_Rotations(other.m_Rotations),
-		m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols()),
-		m_Rng(other.m_Rng),
-		m_TransformedLines(other.m_TransformedLines)
+		: m_Fitness(other.m_Fitness)
+		, m_LinesSize(other.m_LinesSize)
+		, m_LinesPtr(other.m_LinesPtr)
+		, m_Translations(other.m_Translations)
+		, m_Rotations(other.m_Rotations)
+		, m_Solution(other.m_Solution.Rows(), other.m_Solution.Cols())
+		, m_Rng(other.m_Rng)
+		, m_TransformedLines(other.m_TransformedLines)
 	{
 		// No need to copy m_Solution matrix just allocate the space
 	}
 
 	SolutionCandidate::SolutionCandidate(SolutionCandidate&& other)
-		:m_Fitness(other.m_Fitness),
-		m_LinesSize(other.m_LinesSize),
-		m_LinesPtr(other.m_LinesPtr),
-		m_Rng(other.m_Rng)
+		: m_Fitness(other.m_Fitness)
+		, m_LinesSize(other.m_LinesSize)
+		, m_LinesPtr(other.m_LinesPtr)
+		, m_Rng(other.m_Rng)
 	{
 		m_Rotations = std::move(other.m_Rotations);
 		m_Translations = std::move(other.m_Translations);

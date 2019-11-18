@@ -9,20 +9,15 @@ namespace gir
 	Simulation::~Simulation() {}
 	
 	Simulation::Simulation(unsigned int width, unsigned int height, unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn)
-		:m_WindowWidth(width),
-		m_WindowHeight(height),
-		m_Window(sf::VideoMode(width, height), "Image Reconstruction", sf::Style::Titlebar | sf::Style::Close),
-		m_GeneticOptimizer(popSize, transMutChance, rotMutChance, elitismn),
-		m_ItersToRun(1)
+		: m_WindowWidth(width)
+		, m_WindowHeight(height)
+		, m_Window(sf::VideoMode(width, height), "Image Reconstruction", sf::Style::Titlebar | sf::Style::Close)
+		, m_GeneticOptimizer(popSize, transMutChance, rotMutChance, elitismn)
+		, m_ItersToRun(1)
 	{
 		m_Window.setFramerateLimit(FPS);
 
 		m_Font.loadFromFile("C:/Windows/Fonts/Calibri.ttf");
-
-		m_Info.setFont(m_Font);
-		m_Info.setCharacterSize(15);
-		m_Info.setFillColor(sf::Color::Blue);
-		m_Info.setPosition(m_WindowWidth - 130, 55);
 
 		m_Background[0] = sf::Vertex(sf::Vector2f(0, m_WindowHeight), sf::Color(125, 125, 125));
 		m_Background[1] = sf::Vertex(sf::Vector2f(0, 0), sf::Color(125, 125, 125));
@@ -69,10 +64,10 @@ namespace gir
 		for (unsigned int i = 0; i < m_Va.getVertexCount(); i++)
 			m_Va[i].color = sf::Color::Black;
 
-		m_ControlsInfo.setFont(m_Font);
-		m_ControlsInfo.setCharacterSize(15);
-		m_ControlsInfo.setFillColor(sf::Color::Blue);
-		m_ControlsInfo.setPosition(5, oiSize.y * scaleFactor + 10);
+		m_Info.setFont(m_Font);
+		m_Info.setCharacterSize(15);
+		m_Info.setFillColor(sf::Color::Blue);
+		m_Info.setPosition(5, oiSize.y * scaleFactor + 10);
 	}
 
 	void Simulation::Render(const SolutionCandidate& solution)
@@ -106,8 +101,9 @@ namespace gir
 		std::stringstream ss;
 		ss << "Framerate: " << fps << "\n";
 		ss << "Iterations to run at once: " << m_ItersToRun << " (UP, DOWN)\n";
-		m_ControlsInfo.setString(ss.str());
-		m_Window.draw(m_ControlsInfo);
+		ss << m_GeneticOptimizer.GetInfo();
+		m_Info.setString(ss.str());
+		m_Window.draw(m_Info);
 
 		// draw info string to the screen
 		m_Window.draw(m_Info);
@@ -125,7 +121,6 @@ namespace gir
 			if (!m_Paused)
 			{
 				const auto& solution = m_GeneticOptimizer.RunIterations(m_ItersToRun);
-				m_Info.setString(m_GeneticOptimizer.GetInfo());
 				Render(solution);
 			}
 		}

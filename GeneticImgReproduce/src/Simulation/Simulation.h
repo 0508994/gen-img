@@ -25,7 +25,6 @@ namespace gir
 		sf::Clock m_Clock;
 		sf::Font m_Font;
 		sf::Text m_Info;
-		sf::Text m_ControlsInfo;
 
 		sf::Vertex m_Background[4];
 		bool m_Running;
