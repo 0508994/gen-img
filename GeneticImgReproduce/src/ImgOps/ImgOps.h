@@ -12,7 +12,8 @@
 namespace gir
 {
 	using sf::Uint8;
-
+	typedef std::pair<sf::Vector2f, sf::Vector2f> Line;
+	
 	template<class T>
 	constexpr const T& Clamp(const T& v, const T& lo, const T& hi)
 	{
@@ -31,4 +32,7 @@ namespace gir
 	void Scharr(const Mat<Uint8>& src, Mat<Uint8>& dst);
 	void Canny(const Mat<Uint8>& src, Mat<Uint8>& dst, float sigma, float tmin, float tmax);
 	void Threshold(Mat<Uint8>& src, Uint8 value);
+
+	void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator);
+	std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold);
 }

@@ -12,6 +12,7 @@ namespace gir
 		, m_TransMutChance(transMutChance)
 		, m_RotMutChance(rotMutChance)
 	{
+		assert((m_PopSize - m_Elitismn) % 2 == 0);
 		m_Population.reserve(m_PopSize);
 	}
 
@@ -32,7 +33,7 @@ namespace gir
 		std::mt19937 gen((std::random_device())());
 		std::uniform_int_distribution<unsigned int> lineLenDistr(minLineLen, maxLineLen);
 
-		int whitePixelCount = m_ThreshEdges.ValueCount(255) << 1; 
+		int whitePixelCount = m_ThreshEdges.ValueCount(255) * 1.2; 
 		assert(whitePixelCount > 0);
 
 		int lineLen, halfLineLen;
@@ -146,8 +147,11 @@ namespace gir
 		std::stringstream ss;
 		ss << "Iteration: " << m_Iteration << "\n";
 
-		for (unsigned int i = 0; i < m_PopSize; i++)
-			ss << "Fitness " << i << " :" << m_Population[i].GetFitness() << "\n";
+		//for (unsigned int i = 0; i < m_PopSize; i++)
+		//	ss << "Fitness " << i << " :" << m_Population[i].GetFitness() << "\n";
+
+		// Population is always sorted before this function is called.
+		ss << "Top fitness: " << m_Population[0].GetFitness() << "\n";
 
 		return ss.str();
 	}

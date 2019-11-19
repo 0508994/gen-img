@@ -36,8 +36,9 @@ namespace gir
 		Mat<Uint8> gray(m_OI.getSize().y, m_OI.getSize().x);
 		Mat<Uint8> edge(m_OI.getSize().y, m_OI.getSize().x);
 		ToGrayscale(m_OI, gray);
-		Sobel(gray, edge);
-		Threshold(edge, 125);
+		//Sobel(gray, edge);
+		//Threshold(edge, 125);
+		Canny(gray, edge, 0.5, 180, 220);
 		ToSFMLImage(edge, m_OI);
 
 		sf::Vector2u oiSize = m_OI.getSize();
@@ -78,15 +79,33 @@ namespace gir
 		
 		m_CanvasTexture.clear(sf::Color::Transparent);
 
+		//unsigned int i = 0;
+		//for (const auto& line : solution.TransformedLines())
+		//{
+		//	m_Va[i].position = line.first;
+		//	m_Va[i + 1].position = line.second;
+		//	i += 2;
+		//}
+
+
+		//m_CanvasTexture.draw(m_Va);
+
+		sf::Sprite t(m_OITexture);
+		m_CanvasTexture.draw(t);
+		
 		unsigned int i = 0;
-		for (const auto& line : solution.TransformedLines())
+		auto lines = HoughLines(m_GeneticOptimizer.ThreshEdges(), 175);
+		sf::VertexArray h(sf::Lines, lines.size() * 2);
+		for (const auto& line : lines)
 		{
-			m_Va[i].position = line.first;
-			m_Va[i + 1].position = line.second;
+			h[i].position = line.first;
+			h[i].color = sf::Color::Red;
+			h[i + 1].position = line.second;
+			h[i + 1].color = sf::Color::Red;
 			i += 2;
 		}
 
-		m_CanvasTexture.draw(m_Va);
+		m_CanvasTexture.draw(h);
 
 		m_CanvasTexture.display();
 		
@@ -121,6 +140,7 @@ namespace gir
 			{
 				const auto& solution = m_GeneticOptimizer.RunIterations(m_ItersToRun);
 				Render(solution);
+				m_Paused = true; // don't forget to remove this later !!!!
 			}
 		}
 

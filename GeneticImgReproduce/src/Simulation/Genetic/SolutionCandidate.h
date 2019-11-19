@@ -5,8 +5,6 @@
 
 namespace gir
 {
-	typedef std::pair<sf::Vector2f, sf::Vector2f> Line;
-
 	class SolutionCandidate
 	{
 	private:

@@ -4,6 +4,7 @@
 namespace gir
 {
 	using sf::Uint8;
+	constexpr double deg2rad = M_PI / 180.0;
 
 	static void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel<float, 3, 3>& kernel)
 	{
@@ -163,7 +164,6 @@ namespace gir
 			}
 	}
 
-
 	void Sobel(const Mat<Uint8>& src, Mat<Uint8>& dst)
 	{
 		SimpleEdge(src, dst, sobelx, sobely);
@@ -179,8 +179,11 @@ namespace gir
 		SimpleEdge(src, dst, scharrx, scharry);
 	}
 
-	// https://rosettacode.org/wiki/Canny_edge_detector#C
-	// https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
+	/*
+		Canny edge detector implementation based on the following tutorials:
+		https://rosettacode.org/wiki/Canny_edge_detector#C
+		https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
+	*/
 	void Canny(const Mat<Uint8>& src, Mat<Uint8>& dst, float sigma, float tmin, float tmax)
 	{
 		float dx, dy, g, dir;
@@ -252,5 +255,110 @@ namespace gir
 				src[y][x] = src[y][x] >= value ? 255 : 0;
 			}
 		}
+	}
+
+	/*
+		HoughTransform and HoughLines - taken and slightly modified from the following tutorial:
+		http://www.keymolen.com/2013/05/hough-transformation-c-implementation.html
+	*/
+
+	void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator)
+	{
+		double r;
+		unsigned int rows = edges.Rows();
+		unsigned int cols = edges.Cols();
+		double centerY  = rows / 2.0;
+		double centerX = cols / 2.0;
+
+		double houghH = (std::sqrt(2.0) * (rows > cols ? rows : cols) / 2.0);
+		unsigned int accH = houghH * 2.0;
+		unsigned int accW = 180;
+
+		accumulator.Resize(accH, accW);
+		accumulator.Value(0);
+		//memset(accumulator[0], 0, rows * cols * sizeof(unsigned int));
+
+		for (unsigned int y = 0; y < rows; y++)
+		{
+			for (unsigned int x = 0; x < cols; x++)
+			{
+				if (edges[y][x]) // assume edges are threshed
+				{
+					for (unsigned int a = 0; a < 180; a++)
+					{
+						r = ((x - centerX) * cos(a * deg2rad)) + ((y - centerY) * sin(a * deg2rad));
+						accumulator[static_cast<unsigned int>(r + houghH)][a]++;
+					}
+				}
+			}
+		}
+	}
+
+	std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold)
+	{
+		int max, x1, y1, x2, y2, r1, t1;
+		double radAngle;
+		std::vector<Line> lines;
+		Mat<unsigned int> accumulator;
+
+		HoughTransform(edges, accumulator);
+
+		unsigned int accH = accumulator.Rows();
+		unsigned int accW = accumulator.Cols();
+		unsigned int rows = edges.Rows();
+		unsigned int cols = edges.Cols();
+
+		for (unsigned int r = 0; r < accH; r++) 
+		{
+			for (unsigned int t = 0; t < accW; t++)
+			{
+				if (accumulator[r][t] >= threshold)
+				{
+					max = accumulator[r][t];
+
+					for (int ly = -4; ly <= 4; ly++)
+					{
+						for (int lx = -4; lx <= 4; lx++)
+						{
+							r1 = ly + r;
+							t1 = lx + t;
+							if (r1 >= 0 && r1 < accH && t1 >= 0 && t1 < accW)
+							{
+								if (accumulator[r1][t1] > max)
+								{
+									max = accumulator[r1][t1];
+									ly = lx = 5; // exit both loops
+								}
+							}
+						}
+					}
+
+					if (max > accumulator[r][t])
+						continue;
+
+					x1 = x2 = y1 = y2 = 0;
+					radAngle = t * deg2rad;
+
+					if (t >= 45 && t <= 135)
+					{
+						x1 = 0;
+						y1 = ((r - accH / 2) - ((x1 - cols / 2) * cos(radAngle))) / sin(radAngle) + (rows / 2);
+						x2 = cols;
+						y2 = ((r - accH / 2) - ((x2 - cols / 2) * cos(radAngle))) / sin(radAngle) + (rows / 2);
+					}
+					else
+					{
+						y1 = 0;
+						x1 = ((r - accH / 2) - ((y1 - rows / 2) * sin(radAngle))) / cos(radAngle) + (cols / 2);
+						y2 = rows;
+						x2 = ((r - accH / 2) - ((y2 - rows / 2) * sin(radAngle))) / cos(radAngle) + (cols / 2);
+					}
+
+					lines.emplace_back(std::make_pair(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2)));
+				}
+			}
+		}
+
+		return lines;
 	}
 }

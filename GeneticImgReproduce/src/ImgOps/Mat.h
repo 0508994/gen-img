@@ -120,6 +120,7 @@ namespace gir
 		}
 	}
 
+	// TODO: Add std::is_fundamental<T> check and use memset from primitive types
 	template <typename T>
 	void Mat<T>::Value(T value)
 	{

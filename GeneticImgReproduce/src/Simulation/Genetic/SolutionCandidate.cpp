@@ -85,7 +85,7 @@ namespace gir
 		int dx, dy, p, x, y, x0, x1, y0, y1;
 		bool* used = new bool[rows * cols];
 		
-		std::memset(used, 0, rows * cols);
+		memset(used, 0, rows * cols);
 		m_Fitness = 0;
 
 		for (unsigned int i = 0; i < m_LinesSize; i++)

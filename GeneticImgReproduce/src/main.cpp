@@ -4,10 +4,10 @@
 #define W 1280
 #define H 720
 
-#define FILE "../img/doh.png"
-#define POPSIZE 20
-#define ROTMUTCHANCE 0.2
-#define TRANSMUTCHANCE 0.2
+#define FILE "../img/border.png"
+#define POPSIZE 40
+#define ROTMUTCHANCE 0.3
+#define TRANSMUTCHANCE 0.4
 #define ELITISM 2
 #define THRESHOLD 125
 #define MINLINELEN 10

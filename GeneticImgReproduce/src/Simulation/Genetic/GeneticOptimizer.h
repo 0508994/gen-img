@@ -36,6 +36,7 @@ namespace gir
 
 		inline const std::vector<Line>& Lines() const { return m_Lines; }
 		inline unsigned int LinesSize() const { return m_Lines.size(); }
+		inline const Mat<Uint8>& ThreshEdges() const { return m_ThreshEdges; }
 	private:
 		std::pair<const SolutionCandidate*,  const SolutionCandidate*> Selection(const std::vector<double>& weights);
 	};
