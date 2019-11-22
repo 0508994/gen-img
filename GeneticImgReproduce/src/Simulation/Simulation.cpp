@@ -25,7 +25,7 @@ namespace gir
 		m_Background[3] = sf::Vertex(sf::Vector2f(m_WindowWidth, m_WindowHeight), sf::Color(225, 225, 225));
 
 		m_Running = true;
-		m_Paused = false;
+		m_Paused  = false;
 	}
 	
 	void Simulation::Prepare(std::string file, unsigned int threshold, unsigned int minLineLen, unsigned int maxLineLen)
@@ -33,13 +33,13 @@ namespace gir
 		// Prepare the original sprite
 		m_OI.loadFromFile(file);
 		
-		Mat<Uint8> gray(m_OI.getSize().y, m_OI.getSize().x);
-		Mat<Uint8> edge(m_OI.getSize().y, m_OI.getSize().x);
-		ToGrayscale(m_OI, gray);
+		//Mat<Uint8> gray(m_OI.getSize().y, m_OI.getSize().x);
+		//Mat<Uint8> edge(m_OI.getSize().y, m_OI.getSize().x);
+		//ToGrayscale(m_OI, gray);
 		//Sobel(gray, edge);
 		//Threshold(edge, 125);
-		Canny(gray, edge, 0.5, 180, 220);
-		ToSFMLImage(edge, m_OI);
+		//Canny(gray, edge, 0.5, 180, 220);
+		//ToSFMLImage(edge, m_OI);
 
 		sf::Vector2u oiSize = m_OI.getSize();
 		float newImgWidth = 0.30 * m_WindowWidth;
@@ -63,11 +63,12 @@ namespace gir
 		m_Va.resize(m_GeneticOptimizer.LinesSize() * 2);
 		m_Va.setPrimitiveType(sf::Lines);
 		for (unsigned int i = 0; i < m_Va.getVertexCount(); i++)
-			m_Va[i].color = sf::Color::Black;
+			m_Va[i].color = sf::Color(44, 43, 60);
 
 		m_Info.setFont(m_Font);
 		m_Info.setCharacterSize(16);
-		m_Info.setFillColor(sf::Color::Cyan);
+		m_Info.setStyle(sf::Text::Bold);
+		m_Info.setFillColor(sf::Color(44, 43, 60));
 		m_Info.setPosition(5, oiSize.y * scaleFactor + 10);
 	}
 
@@ -79,34 +80,15 @@ namespace gir
 		
 		m_CanvasTexture.clear(sf::Color::Transparent);
 
-		//unsigned int i = 0;
-		//for (const auto& line : solution.TransformedLines())
-		//{
-		//	m_Va[i].position = line.first;
-		//	m_Va[i + 1].position = line.second;
-		//	i += 2;
-		//}
-
-
-		//m_CanvasTexture.draw(m_Va);
-
-		sf::Sprite t(m_OITexture);
-		m_CanvasTexture.draw(t);
-		
 		unsigned int i = 0;
-		auto lines = HoughLines(m_GeneticOptimizer.ThreshEdges(), 60);
-		sf::VertexArray h(sf::Lines, lines.size() * 2);
-		for (const auto& line : lines)
+		for (const auto& line : solution.TransformedLines())
 		{
-			h[i].position = line.first;
-			h[i].color = sf::Color::Red;
-			h[i + 1].position = line.second;
-			h[i + 1].color = sf::Color::Red;
+			m_Va[i].position = line.first;
+			m_Va[i + 1].position = line.second;
 			i += 2;
 		}
 
-		m_CanvasTexture.draw(h);
-
+		m_CanvasTexture.draw(m_Va);
 		m_CanvasTexture.display();
 		
 		m_Window.draw(m_CanvasSprite);
@@ -140,7 +122,6 @@ namespace gir
 			{
 				const auto& solution = m_GeneticOptimizer.RunIterations(m_ItersToRun);
 				Render(solution);
-				m_Paused = true; // don't forget to remove this later !!!!
 			}
 		}
 

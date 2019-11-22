@@ -33,7 +33,7 @@ namespace gir
 		std::mt19937 gen((std::random_device())());
 		std::uniform_int_distribution<unsigned int> lineLenDistr(minLineLen, maxLineLen);
 
-		int whitePixelCount = m_ThreshEdges.ValueCount(255) * 1.2; 
+		int whitePixelCount = m_ThreshEdges.ValueCount(255) * 1.5; 
 		assert(whitePixelCount > 0);
 
 		int lineLen, halfLineLen;

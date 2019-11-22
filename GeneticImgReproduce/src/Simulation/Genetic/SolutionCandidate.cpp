@@ -83,7 +83,7 @@ namespace gir
 		auto& lines = *m_LinesPtr;
 		unsigned int rows = threshEdges.Rows(), cols = threshEdges.Cols();
 		int dx, dy, p, x, y, x0, x1, y0, y1;
-		bool* used = new bool[rows * cols];
+		bool *used = new bool[rows * cols];
 		
 		memset(used, 0, rows * cols);
 		m_Fitness = 0;
@@ -123,15 +123,27 @@ namespace gir
 			{
 				if (p >= 0)
 				{
-					m_Fitness += (threshEdges[y][x] == 255 && !used[y * cols + x]);
-					if (threshEdges[y][x] == 255) used[y * cols + x] = true;
+					if (threshEdges[y][x] == 255 && !used[y * cols + x])
+					{
+						m_Fitness++;
+						used[y * cols + x] = true;
+					}
+					else if (used[y * cols + x] && m_Fitness != 0)
+						m_Fitness--;
+					
 					y = y + 1;
 					p = p + 2 * dy - 2 * dx;
 				}
 				else
 				{
-					m_Fitness += (threshEdges[y][x] == 255 && !used[y * cols + x]);
-					if (threshEdges[y][x] == 255) used[y * cols + x] = true;
+					if (threshEdges[y][x] == 255 && !used[y * cols + x])
+					{
+						m_Fitness++;
+						used[y * cols + x] = true;
+					}
+					else if (used[y * cols + x] && m_Fitness != 0)
+						m_Fitness--;
+
 					p = p + 2 * dy;
 				}
 				x = x + 1;
@@ -171,8 +183,8 @@ namespace gir
 		{
 			// Mutate the random number of line translations 
 			for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
-				//m_Translations[m_Rng->RandomLineIndex()] = sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY());
-				m_Translations[m_Rng->RandomLineIndex()] += sf::Vector2f(m_Rng->RandomIncr(), m_Rng->RandomIncr());
+				m_Translations[m_Rng->RandomLineIndex()] = sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY());
+				//m_Translations[m_Rng->RandomLineIndex()] += sf::Vector2f(m_Rng->RandomIncr(), m_Rng->RandomIncr());
 		}
 
 		if (m_Rng->Probability() <= rotMutChance)
@@ -188,6 +200,7 @@ namespace gir
 	{
 		auto& lines = *m_LinesPtr;
 		std::vector<Line> result;
+		
 		result.reserve(m_LinesSize);
 
 		for (unsigned int i = 0; i < m_LinesSize; i++)
@@ -202,7 +215,7 @@ namespace gir
 				transform.transformPoint(lines[i].second)));
 		}
 
-		return result; // shouldn't be copied just moved rite?
+		return result;
 	}
 
 	void SolutionCandidate::ClampLine(Line& line, unsigned int rows, unsigned int columns) const

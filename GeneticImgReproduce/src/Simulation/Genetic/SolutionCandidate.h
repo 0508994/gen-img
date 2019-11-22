@@ -8,7 +8,7 @@ namespace gir
 	class SolutionCandidate
 	{
 	private:
-		unsigned int m_Fitness = 0;
+		int m_Fitness = 0;
 		unsigned int m_LinesSize;
 		std::vector<Line>* m_LinesPtr;
 		std::vector<sf::Vector2f> m_Translations;
@@ -29,7 +29,7 @@ namespace gir
 		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2);
 		void Mutate(double transMutChance, double rotMutChance);
 		
-		inline unsigned int GetFitness() const { return m_Fitness; }
+		inline int GetFitness() const { return m_Fitness; }
 		inline bool operator< (const SolutionCandidate& other) const { return m_Fitness < other.m_Fitness; }
 		inline bool operator> (const SolutionCandidate& other) const { return m_Fitness > other.m_Fitness; }
 		inline bool operator<= (const SolutionCandidate& other) const { return m_Fitness <= other.m_Fitness; }
