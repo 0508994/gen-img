@@ -4,7 +4,7 @@
 #define W 1280
 #define H 720
 
-#define FILE "../img/border.png"
+#define FILE "../img/lines.png"
 #define POPSIZE 40
 #define ROTMUTCHANCE 0.3
 #define TRANSMUTCHANCE 0.4

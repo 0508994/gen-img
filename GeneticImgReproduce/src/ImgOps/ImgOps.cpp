@@ -1,6 +1,5 @@
 #include "ImgOps.h"
 
-
 namespace gir
 {
 	using sf::Uint8;
@@ -260,6 +259,10 @@ namespace gir
 	/*
 		HoughTransform and HoughLines - taken and slightly modified from the following tutorial:
 		http://www.keymolen.com/2013/05/hough-transformation-c-implementation.html
+
+
+		also:
+		opencv/modules/imgproc/src/hough.cpp
 	*/
 
 	void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator)
@@ -270,7 +273,7 @@ namespace gir
 		double centerY  = rows / 2.0;
 		double centerX = cols / 2.0;
 
-		double houghH = (std::sqrt(2.0) * (rows > cols ? rows : cols) / 2.0);
+		double houghH = (sqrt(2.0) * (rows > cols ? rows : cols)) / 2.0; // max distance [rect diag]
 		unsigned int accH = houghH * 2.0;
 		unsigned int accW = 180;
 
@@ -287,7 +290,7 @@ namespace gir
 					for (unsigned int a = 0; a < 180; a++)
 					{
 						r = ((x - centerX) * cos(a * deg2rad)) + ((y - centerY) * sin(a * deg2rad));
-						accumulator[static_cast<unsigned int>(r + houghH)][a]++;
+						accumulator[static_cast<int>(r + houghH)][a]++;
 					}
 				}
 			}
@@ -296,8 +299,8 @@ namespace gir
 
 	std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold)
 	{
-		int max, x1, y1, x2, y2, r1, t1;
-		double radAngle;
+		int max, r1, t1;
+		double radAngle, x1, y1, x2, y2;
 		std::vector<Line> lines;
 		Mat<unsigned int> accumulator;
 
@@ -305,8 +308,8 @@ namespace gir
 
 		unsigned int accH = accumulator.Rows();
 		unsigned int accW = accumulator.Cols();
-		unsigned int rows = edges.Rows();
-		unsigned int cols = edges.Cols();
+		double rows = static_cast<double>(edges.Rows());
+		double cols = static_cast<double>(edges.Cols());
 
 		for (unsigned int r = 0; r < accH; r++) 
 		{
@@ -316,11 +319,11 @@ namespace gir
 				{
 					max = accumulator[r][t];
 
-					for (int ly = -4; ly <= 4; ly++)
+					for (int ly = -4; ly <= 4; ly++) // search a 9x9 patch
 					{
+						r1 = ly + r;
 						for (int lx = -4; lx <= 4; lx++)
 						{
-							r1 = ly + r;
 							t1 = lx + t;
 							if (r1 >= 0 && r1 < accH && t1 >= 0 && t1 < accW)
 							{
@@ -336,22 +339,23 @@ namespace gir
 					if (max > accumulator[r][t])
 						continue;
 
-					x1 = x2 = y1 = y2 = 0;
+					x1 = x2 = y1 = y2 = 0.0;
 					radAngle = t * deg2rad;
 
+					// https://stackoverflow.com/questions/13663545/does-one-double-promote-every-int-in-the-equation-to-double !!!!!!!!!!!!!!!!!!!!!
 					if (t >= 45 && t <= 135)
 					{
-						x1 = 0;
-						y1 = ((r - accH / 2) - ((x1 - cols / 2) * cos(radAngle))) / sin(radAngle) + (rows / 2);
+						x1 = 0.0;
+						y1 = ((r - accH / 2.0) - ((x1 - cols / 2.0) * cos(radAngle))) / sin(radAngle) + (rows / 2.0);
 						x2 = cols;
-						y2 = ((r - accH / 2) - ((x2 - cols / 2) * cos(radAngle))) / sin(radAngle) + (rows / 2);
+						y2 = ((r - accH / 2.0) - ((x2 - cols / 2.0) * cos(radAngle))) / sin(radAngle) + (rows / 2.0);
 					}
 					else
 					{
-						y1 = 0;
-						x1 = ((r - accH / 2) - ((y1 - rows / 2) * sin(radAngle))) / cos(radAngle) + (cols / 2);
+						y1 = 0.0;
+						x1 = ((r - accH / 2.0) - ((y1 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
 						y2 = rows;
-						x2 = ((r - accH / 2) - ((y2 - rows / 2) * sin(radAngle))) / cos(radAngle) + (cols / 2);
+						x2 = ((r - accH / 2.0) - ((y2 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
 					}
 
 					lines.emplace_back(std::make_pair(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2)));

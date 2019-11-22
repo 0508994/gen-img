@@ -94,7 +94,7 @@ namespace gir
 		m_CanvasTexture.draw(t);
 		
 		unsigned int i = 0;
-		auto lines = HoughLines(m_GeneticOptimizer.ThreshEdges(), 175);
+		auto lines = HoughLines(m_GeneticOptimizer.ThreshEdges(), 60);
 		sf::VertexArray h(sf::Lines, lines.size() * 2);
 		for (const auto& line : lines)
 		{
