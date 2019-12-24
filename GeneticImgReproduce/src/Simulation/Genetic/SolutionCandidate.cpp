@@ -223,10 +223,10 @@ namespace gir
 		float rowsf = static_cast<int>(rows);
 		float colsf = static_cast<int>(columns);
 
-		line.first.x = Clamp(line.first.x, 0.0f, colsf - 1);
-		line.second.x = Clamp(line.second.x, 0.0f, colsf - 1);
-		line.first.y = Clamp(line.first.y, 0.0f, rowsf - 1);
-		line.second.y = Clamp(line.second.y, 0.0f, rowsf - 1);
+		line.first.x = std::clamp(line.first.x, 0.0f, colsf - 1);
+		line.second.x = std::clamp(line.second.x, 0.0f, colsf - 1);
+		line.first.y = std::clamp(line.first.y, 0.0f, rowsf - 1);
+		line.second.y = std::clamp(line.second.y, 0.0f, rowsf - 1);
 	}
 
 	bool SolutionCandidate::WithinBounds(const Line& line, unsigned int rows, unsigned int columns) const

@@ -14,11 +14,11 @@ namespace gir
 	using sf::Uint8;
 	typedef std::pair<sf::Vector2f, sf::Vector2f> Line;
 	
-	template<class T>
-	constexpr const T& Clamp(const T& v, const T& lo, const T& hi)
-	{
-		return v <= lo ? lo : (v >= hi ? hi : v);
-	}
+	//template<class T>
+	//constexpr const T& Clamp(const T& v, const T& lo, const T& hi)
+	//{
+	//	return v <= lo ? lo : (v >= hi ? hi : v);
+	//}
 
 	inline int Circular(const int& M, const int& x)
 	{

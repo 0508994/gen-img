@@ -126,7 +126,7 @@ namespace gir
 					}
 				}
 
-				dst[y][x] = static_cast<Uint8>(Clamp(hypot(dx, dy), 0.0f, 255.0f));
+				dst[y][x] = static_cast<Uint8>(std::clamp(hypot(dx, dy), 0.0f, 255.0f));
 				//dst[y][x] = dst[y][x] >= 70 ? 255 : 0;
 			}
 		}
@@ -147,7 +147,7 @@ namespace gir
 			//sf::Uint8 alpha = pByteBuffer[4 * i + 3];
 
 			float gray = std::floor((red + green + blue + 0.5));
-			gray = Clamp(gray, 0.0f, 255.0f);
+			gray = std::clamp(gray, 0.0f, 255.0f);
 
 			outGray[0][i] = static_cast<Uint8>(gray);
 		}
