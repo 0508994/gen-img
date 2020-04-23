@@ -17,8 +17,8 @@ namespace gir
 		std::shared_ptr<RNG> m_Rng;
 	public:
 		SolutionCandidate();
-		SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng);
-		SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, std::shared_ptr<RNG> rng);
+		SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, const std::shared_ptr<RNG>& rng);
+		SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, const std::shared_ptr<RNG>& rng);
 		SolutionCandidate(const SolutionCandidate& other);
 		SolutionCandidate(SolutionCandidate&& other);
 		~SolutionCandidate();

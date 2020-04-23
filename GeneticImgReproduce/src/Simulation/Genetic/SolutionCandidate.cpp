@@ -6,7 +6,7 @@ namespace gir
 
 	SolutionCandidate::~SolutionCandidate() {}
 
-	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, std::shared_ptr<RNG> rng)
+	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, const std::shared_ptr<RNG>& rng)
 		: m_Fitness(0)
 		, m_LinesSize(lines->size())
 		, m_LinesPtr(lines)
@@ -28,7 +28,7 @@ namespace gir
 		ComputeFitness(threshEdges);
 	}
 
-	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, std::shared_ptr<RNG> rng)
+	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, const std::shared_ptr<RNG>& rng)
 		: m_Fitness(0)
 		, m_LinesSize(lines->size())
 		, m_LinesPtr(lines)
