@@ -52,7 +52,7 @@ namespace gir
 			m_Lines.emplace_back(std::make_pair(sf::Vector2f(-halfLineLen, 0.0f), sf::Vector2f(halfLineLen, 0.0f)));
 		}
 
-		m_Rng = std::make_shared<RNG>(RNG(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.8));
+		m_Rng = std::make_shared<RNG>(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.8);
 	
 		for (unsigned int i = 0; i < m_PopSize; i++)
 			m_Population.emplace_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
