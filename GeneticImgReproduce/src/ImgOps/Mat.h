@@ -31,14 +31,17 @@ namespace gir
 
 	template<typename T>
 	Mat<T>::Mat()
+		: m_M(0)
+		, m_N(0)
+		, m_Mat(nullptr)
 	{
-		m_M		= m_N = 0;
-		m_Mat	= nullptr;
 	}
 
 	template <typename T>
 	Mat<T>::Mat(unsigned int m, unsigned int n)
-		:m_M(m), m_N(n), m_Mat((m > 0 && n > 0) ? new T*[m] : nullptr)
+		: m_M(m)
+		, m_N(n)
+		, m_Mat((m > 0 && n > 0) ? new T * [m] : nullptr)
 	{
 		if (m_Mat)
 		{
@@ -54,15 +57,15 @@ namespace gir
 	{
 		m_M = m;
 		m_N = n;
-		
+
 		if (m_Mat)
 		{
 			delete[] m_Mat[0];
 			delete[] m_Mat;
 		}
 
-		m_Mat = (m > 0 && n > 0) ? new T*[m] : nullptr;
-		
+		m_Mat = (m > 0 && n > 0) ? new T * [m] : nullptr;
+
 		if (m_Mat)
 		{
 			unsigned int nel = m * n;
@@ -74,13 +77,15 @@ namespace gir
 
 	template <typename T>
 	Mat<T>::Mat(const Mat<T>& other)
-		:m_M(other.m_M), m_N(other.m_N), m_Mat((other.m_M > 0 && other.m_N > 0) ? new T*[other.m_M] : nullptr)
+		: m_M(other.m_M)
+		, m_N(other.m_N)
+		, m_Mat((other.m_M > 0 && other.m_N > 0) ? new T * [other.m_M] : nullptr)
 	{
 		if (m_Mat)
 		{
-			unsigned int m		= other.m_M;
-			unsigned int n		= other.m_N;
-			unsigned int nel	= m * n;
+			unsigned int m = other.m_M;
+			unsigned int n = other.m_N;
+			unsigned int nel = m * n;
 
 			m_Mat[0] = new T[nel];
 			for (unsigned int i = 1; i < m; i++)
@@ -93,9 +98,10 @@ namespace gir
 
 	template <typename T>
 	Mat<T>::Mat(Mat<T>&& other)
-		:m_M(other.m_M), m_N(other.m_N)
+		: m_M(other.m_M)
+		, m_N(other.m_N)
 	{
-		m_Mat		= other.m_Mat;
+		m_Mat = other.m_Mat;
 		other.m_Mat = nullptr;
 	}
 
@@ -108,9 +114,9 @@ namespace gir
 			delete[] m_Mat;
 		}
 
-		m_M			= other.m_M;
-		m_N			= other.m_N;
-		m_Mat		= other.m_Mat;
+		m_M = other.m_M;
+		m_N = other.m_N;
+		m_Mat = other.m_Mat;
 		other.m_Mat = nullptr;
 
 		return *this;

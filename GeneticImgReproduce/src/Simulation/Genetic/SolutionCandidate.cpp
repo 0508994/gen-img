@@ -53,23 +53,22 @@ namespace gir
 		, m_LinesSize(other.m_LinesSize)
 		, m_LinesPtr(other.m_LinesPtr)
 		, m_Rng(other.m_Rng)
+		, m_Rotations(std::move(other.m_Rotations))
+	    , m_Translations(std::move(other.m_Translations))
 	{
-		m_Rotations		= std::move(other.m_Rotations);
-		m_Translations	= std::move(other.m_Translations);
-
 		other.m_LinesPtr = nullptr;
 	}
 
 	SolutionCandidate& SolutionCandidate::operator=(SolutionCandidate&& other)
 	{
-		m_Fitness	= other.m_Fitness;
-		m_LinesPtr	= other.m_LinesPtr;
+		m_Fitness = other.m_Fitness;
+		m_LinesPtr = other.m_LinesPtr;
 		m_LinesSize = other.m_LinesSize;
-		m_Fitness	= other.m_Fitness;
-		m_Rng		= other.m_Rng;
+		m_Fitness = other.m_Fitness;
+		m_Rng = other.m_Rng;
 
-		m_Rotations		= std::move(other.m_Rotations);
-		m_Translations	= std::move(other.m_Translations);
+		m_Rotations = std::move(other.m_Rotations);
+		m_Translations = std::move(other.m_Translations);
 
 		other.m_LinesPtr = nullptr;
 
