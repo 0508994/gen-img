@@ -2,7 +2,8 @@
 
 namespace gir
 {
-	GeneticOptimizer::GeneticOptimizer(unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn)
+	GeneticOptimizer::GeneticOptimizer(unsigned int popSize, double transMutChance,
+									   double rotMutChance, unsigned int elitismn)
 		: m_PopSize(popSize)
 		, m_Elitismn(elitismn)
 		, m_TransMutChance(transMutChance)
@@ -12,7 +13,8 @@ namespace gir
 		m_Population.reserve(m_PopSize);
 	}
 
-	void GeneticOptimizer::PrepareGA(const sf::Image& origImage, Uint8 threshold, unsigned int minLineLen, unsigned int maxLineLen)
+	void GeneticOptimizer::PrepareGA(const sf::Image& origImage, Uint8 threshold,
+									 unsigned int minLineLen, unsigned int maxLineLen)
 	{
 		assert(maxLineLen > minLineLen);
 

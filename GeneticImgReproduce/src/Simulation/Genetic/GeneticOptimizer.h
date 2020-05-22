@@ -29,9 +29,11 @@ namespace gir
 		unsigned int m_ImgCols = 0;
 	public:
 		GeneticOptimizer() = delete;
-		GeneticOptimizer(unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn);
+		GeneticOptimizer(unsigned int popSize, double transMutChance,
+					     double rotMutChance, unsigned int elitismn);
 
-		void PrepareGA(const sf::Image& origImage, Uint8 threshold, unsigned int minLineLen, unsigned int maxLineLen);
+		void PrepareGA(const sf::Image& origImage, Uint8 threshold,
+					   unsigned int minLineLen, unsigned int maxLineLen);
 		const SolutionCandidate& RunIterations(unsigned int nIterations);
 		std::string GetInfo() const;
 

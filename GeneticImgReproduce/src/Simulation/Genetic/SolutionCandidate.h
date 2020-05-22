@@ -21,7 +21,8 @@ namespace gir
 						  unsigned int solutionCols, const std::shared_ptr<RNG>& rng);
 
 		void ComputeFitness(const Mat<Uint8>& threshEdges);
-		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2);
+		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2,
+							  SolutionCandidate& child1, SolutionCandidate& child2);
 		void Mutate(double transMutChance, double rotMutChance);
 		
 		inline int GetFitness() const { return m_Fitness; }

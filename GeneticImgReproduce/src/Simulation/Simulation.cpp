@@ -25,7 +25,8 @@ namespace gir
 		m_Paused  = false;
 	}
 	
-	void Simulation::Prepare(std::string file, unsigned int threshold, unsigned int minLineLen, unsigned int maxLineLen)
+	void Simulation::Prepare(std::string file, unsigned int threshold,
+							 unsigned int minLineLen, unsigned int maxLineLen)
 	{
 		// Prepare the original sprite
 		m_OI.loadFromFile(file);
