@@ -2,367 +2,367 @@
 
 namespace gir
 {
-	using sf::Uint8;
-	constexpr double deg2rad = M_PI / 180.0;
+    using sf::Uint8;
+    constexpr double deg2rad = M_PI / 180.0;
 
-	static void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel<float, 3, 3>& kernel)
-	{
-		float sum;
-		int x1, y1;
-		unsigned int cols = src.Cols();
-		unsigned int rows = src.Rows();
-		unsigned int kernelSize = kernel.size();
-		int kernelOffset = kernelSize / 2;
+    static void Convolution(const Mat<Uint8>& src, Mat<float>& dst, const Kernel<float, 3, 3>& kernel)
+    {
+        float sum;
+        int x1, y1;
+        unsigned int cols = src.Cols();
+        unsigned int rows = src.Rows();
+        unsigned int kernelSize = kernel.size();
+        int kernelOffset = kernelSize / 2;
 
-		for (unsigned int y = 0; y < rows; y++)
-		{
-			for (unsigned int x = 0; x < cols; x++)
-			{
-				sum = 0.0f;
-				for (int k = -kernelOffset; k <= kernelOffset; k++)
-				{
-					for (int j = -kernelOffset; j <= kernelOffset; j++)
-					{
-						x1 = Circular(cols, x - j);
-						y1 = Circular(rows, y - k);
-						sum += kernel[j + kernelOffset][k + kernelOffset] * src[y1][x1];
-					}
-				}
+        for (unsigned int y = 0; y < rows; y++)
+        {
+            for (unsigned int x = 0; x < cols; x++)
+            {
+                sum = 0.0f;
+                for (int k = -kernelOffset; k <= kernelOffset; k++)
+                {
+                    for (int j = -kernelOffset; j <= kernelOffset; j++)
+                    {
+                        x1 = Circular(cols, x - j);
+                        y1 = Circular(rows, y - k);
+                        sum += kernel[j + kernelOffset][k + kernelOffset] * src[y1][x1];
+                    }
+                }
 
-				dst[y][x] = sum;
-			}
-		}
-	}
+                dst[y][x] = sum;
+            }
+        }
+    }
 
-	static Kernel<float, 3, 3> Gaussian(float sigma = 0.5)
-	{
-		assert(sigma >= 0 && sigma <= 0.5);
+    static Kernel<float, 3, 3> Gaussian(float sigma = 0.5)
+    {
+        assert(sigma >= 0 && sigma <= 0.5);
 
-		Kernel<float, 3, 3> gauss;
+        Kernel<float, 3, 3> gauss;
 
-		for (unsigned int y = 0; y < 3; y++)
-			for (unsigned int x = 0; x < 3; x++)
-			{
-				gauss[y][x] = exp(-0.5 * (x * x + y * y) / (sigma * sigma))
-					/ (2.0 * M_PI * sigma * sigma);
-			}
+        for (unsigned int y = 0; y < 3; y++)
+            for (unsigned int x = 0; x < 3; x++)
+            {
+                gauss[y][x] = exp(-0.5 * (x * x + y * y) / (sigma * sigma))
+                    / (2.0 * M_PI * sigma * sigma);
+            }
 
-		//for (int y = 0; y < 3; y++) {
-		//	for (int x = 0; x < 3; x++)
-		//		std::cout << gauss[y][x] << "\t";
-		//	std::cout << std::endl;
-		//}
+        //for (int y = 0; y < 3; y++) {
+        //	for (int x = 0; x < 3; x++)
+        //		std::cout << gauss[y][x] << "\t";
+        //	std::cout << std::endl;
+        //}
 
-		return gauss;
-	}
+        return gauss;
+    }
 
-	static void Hysteresis(const Mat<float>& nms, Mat<Uint8>& out, float tmin, float tmax)
-	{
-		int ni, nj;
-		std::queue<std::pair<int, int>> edges;
+    static void Hysteresis(const Mat<float>& nms, Mat<Uint8>& out, float tmin, float tmax)
+    {
+        int ni, nj;
+        std::queue<std::pair<int, int>> edges;
 
-		out.Value(0);
+        out.Value(0);
 
-		for (unsigned int y = 1; y < nms.Rows() - 1; y++)
-		{
-			for (unsigned int x = 1; x < nms.Cols() - 1; x++)
-			{
-				if (nms[y][x] >= tmax && out[y][x] == 0)
-				{
-					out[y][x] = 255;
-					edges.push(std::make_pair(y, x));
+        for (unsigned int y = 1; y < nms.Rows() - 1; y++)
+        {
+            for (unsigned int x = 1; x < nms.Cols() - 1; x++)
+            {
+                if (nms[y][x] >= tmax && out[y][x] == 0)
+                {
+                    out[y][x] = 255;
+                    edges.push(std::make_pair(y, x));
 
-					while (!edges.empty())
-					{
-						auto point = edges.front();
-						edges.pop();
+                    while (!edges.empty())
+                    {
+                        auto point = edges.front();
+                        edges.pop();
 
-						for (int i = -1; i <= 1; i++)
-						{
-							ni = point.first + i;
+                        for (int i = -1; i <= 1; i++)
+                        {
+                            ni = point.first + i;
 
-							for (int j = -1; j <= 1; j++)
-							{
-								nj = point.second + j;
+                            for (int j = -1; j <= 1; j++)
+                            {
+                                nj = point.second + j;
 
-								if (nms[ni][nj] >= tmin && out[ni][nj] == 0)
-								{
-									out[ni][nj] = 255;
-									edges.push(std::make_pair(ni, nj));
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                                if (nms[ni][nj] >= tmin && out[ni][nj] == 0)
+                                {
+                                    out[ni][nj] = 255;
+                                    edges.push(std::make_pair(ni, nj));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	static void SimpleEdge(const Mat<Uint8>& src, Mat<Uint8>& dst, const Kernel<int, 3, 3>& kx, const Kernel<int, 3, 3>& ky)
-	{
-		float dx, dy;
-		int x1, y1;
-		unsigned int cols = src.Cols();
-		unsigned int rows = src.Rows();
-		unsigned int kernelSize = kx.size();
-		int kernelOffset = kernelSize / 2;
+    static void SimpleEdge(const Mat<Uint8>& src, Mat<Uint8>& dst, const Kernel<int, 3, 3>& kx, const Kernel<int, 3, 3>& ky)
+    {
+        float dx, dy;
+        int x1, y1;
+        unsigned int cols = src.Cols();
+        unsigned int rows = src.Rows();
+        unsigned int kernelSize = kx.size();
+        int kernelOffset = kernelSize / 2;
 
-		for (unsigned int y = 0; y < rows; y++)
-		{
-			for (unsigned int x = 0; x < cols; x++)
-			{
-				dx = 0.0f;
-				dy = 0.0f;
+        for (unsigned int y = 0; y < rows; y++)
+        {
+            for (unsigned int x = 0; x < cols; x++)
+            {
+                dx = 0.0f;
+                dy = 0.0f;
 
-				for (int k = -kernelOffset; k <= kernelOffset; k++)
-				{
-					for (int j = -kernelOffset; j <= kernelOffset; j++)
-					{
-						x1 = Circular(cols, x - j);
-						y1 = Circular(rows, y - k);
+                for (int k = -kernelOffset; k <= kernelOffset; k++)
+                {
+                    for (int j = -kernelOffset; j <= kernelOffset; j++)
+                    {
+                        x1 = Circular(cols, x - j);
+                        y1 = Circular(rows, y - k);
 
-						dx += kx[j + kernelOffset][k + kernelOffset] * src[y1][x1];
-						dy += ky[j + kernelOffset][k + kernelOffset] * src[y1][x1];
-					}
-				}
+                        dx += kx[j + kernelOffset][k + kernelOffset] * src[y1][x1];
+                        dy += ky[j + kernelOffset][k + kernelOffset] * src[y1][x1];
+                    }
+                }
 
-				dst[y][x] = static_cast<Uint8>(std::clamp(hypot(dx, dy), 0.0f, 255.0f));
-				//dst[y][x] = dst[y][x] >= 70 ? 255 : 0;
-			}
-		}
-	}
+                dst[y][x] = static_cast<Uint8>(std::clamp(hypot(dx, dy), 0.0f, 255.0f));
+                //dst[y][x] = dst[y][x] >= 70 ? 255 : 0;
+            }
+        }
+    }
 
-	void ToGrayscale(const sf::Image& inRgba, Mat<Uint8>& outGray)
-	{
-		const Uint8* pByteBuffer = inRgba.getPixelsPtr();
-		auto sfSize = inRgba.getSize();
-		
-		unsigned int numPixels = sfSize.x * sfSize.y;
+    void ToGrayscale(const sf::Image& inRgba, Mat<Uint8>& outGray)
+    {
+        const Uint8* pByteBuffer = inRgba.getPixelsPtr();
+        auto sfSize = inRgba.getSize();
+        
+        unsigned int numPixels = sfSize.x * sfSize.y;
 
-		for (unsigned int i = 0; i < numPixels; ++i)
-		{
-			float red = pByteBuffer[4 * i] * 0.299f;
-			float green = pByteBuffer[4 * i + 1] * 0.587;
-			float blue = pByteBuffer[4 * i + 2] * 0.144;
-			//sf::Uint8 alpha = pByteBuffer[4 * i + 3];
+        for (unsigned int i = 0; i < numPixels; ++i)
+        {
+            float red = pByteBuffer[4 * i] * 0.299f;
+            float green = pByteBuffer[4 * i + 1] * 0.587;
+            float blue = pByteBuffer[4 * i + 2] * 0.144;
+            //sf::Uint8 alpha = pByteBuffer[4 * i + 3];
 
-			float gray = std::floor((red + green + blue + 0.5));
-			gray = std::clamp(gray, 0.0f, 255.0f);
+            float gray = std::floor((red + green + blue + 0.5));
+            gray = std::clamp(gray, 0.0f, 255.0f);
 
-			outGray[0][i] = static_cast<Uint8>(gray);
-		}
-	}
+            outGray[0][i] = static_cast<Uint8>(gray);
+        }
+    }
 
-	void ToSFMLImage(const Mat<Uint8>& inGray, sf::Image& outRgba)
-	{
-		for (unsigned int y = 0; y < inGray.Rows(); y++)
-			for (unsigned int x = 0; x < inGray.Cols(); x++)
-			{
-				Uint8 g = inGray[y][x];
-				outRgba.setPixel(x, y, sf::Color(g, g, g, 255));
-			}
-	}
+    void ToSFMLImage(const Mat<Uint8>& inGray, sf::Image& outRgba)
+    {
+        for (unsigned int y = 0; y < inGray.Rows(); y++)
+            for (unsigned int x = 0; x < inGray.Cols(); x++)
+            {
+                Uint8 g = inGray[y][x];
+                outRgba.setPixel(x, y, sf::Color(g, g, g, 255));
+            }
+    }
 
-	void Sobel(const Mat<Uint8>& src, Mat<Uint8>& dst)
-	{
-		SimpleEdge(src, dst, sobelx, sobely);
-	}
+    void Sobel(const Mat<Uint8>& src, Mat<Uint8>& dst)
+    {
+        SimpleEdge(src, dst, sobelx, sobely);
+    }
 
-	void Prewitt(const Mat<Uint8>& src, Mat<Uint8>& dst)
-	{
-		SimpleEdge(src, dst, prewittx, prewitty);
-	}
+    void Prewitt(const Mat<Uint8>& src, Mat<Uint8>& dst)
+    {
+        SimpleEdge(src, dst, prewittx, prewitty);
+    }
 
-	void Scharr(const Mat<Uint8>& src, Mat<Uint8>& dst)
-	{
-		SimpleEdge(src, dst, scharrx, scharry);
-	}
+    void Scharr(const Mat<Uint8>& src, Mat<Uint8>& dst)
+    {
+        SimpleEdge(src, dst, scharrx, scharry);
+    }
 
-	/*
-		Canny edge detector implementation based on the following tutorials:
-		https://rosettacode.org/wiki/Canny_edge_detector#C
-		https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
-	*/
-	void Canny(const Mat<Uint8>& src, Mat<Uint8>& dst, float sigma, float tmin, float tmax)
-	{
-		float dx, dy, g, dir;
-		int x1, y1;
-		unsigned int cols = src.Cols();
-		unsigned int rows = src.Rows();
-		unsigned int kernelSize = sobelx.size();
-		int kernelOffset = kernelSize / 2;
+    /*
+        Canny edge detector implementation based on the following tutorials:
+        https://rosettacode.org/wiki/Canny_edge_detector#C
+        https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
+    */
+    void Canny(const Mat<Uint8>& src, Mat<Uint8>& dst, float sigma, float tmin, float tmax)
+    {
+        float dx, dy, g, dir;
+        int x1, y1;
+        unsigned int cols = src.Cols();
+        unsigned int rows = src.Rows();
+        unsigned int kernelSize = sobelx.size();
+        int kernelOffset = kernelSize / 2;
 
-		Mat<float> temp(rows, cols);
-		Mat<std::pair<float, float>> gradDir(rows, cols);
-		Mat<float> nms(rows, cols);
+        Mat<float> temp(rows, cols);
+        Mat<std::pair<float, float>> gradDir(rows, cols);
+        Mat<float> nms(rows, cols);
 
-		// # Blur
-		Convolution(src, temp, Gaussian(sigma));
-		
-		// # Gradients
-		for (unsigned int y = 0; y < rows; y++)
-		{
-			for (unsigned int x = 0; x < cols; x++)
-			{
-				dx = 0.0f;
-				dy = 0.0f;
+        // # Blur
+        Convolution(src, temp, Gaussian(sigma));
+        
+        // # Gradients
+        for (unsigned int y = 0; y < rows; y++)
+        {
+            for (unsigned int x = 0; x < cols; x++)
+            {
+                dx = 0.0f;
+                dy = 0.0f;
 
-				for (int k = -kernelOffset; k <= kernelOffset; k++)
-				{
-					for (int j = -kernelOffset; j <= kernelOffset; j++)
-					{
-						x1 = Circular(cols, x - j);
-						y1 = Circular(rows, y - k);
+                for (int k = -kernelOffset; k <= kernelOffset; k++)
+                {
+                    for (int j = -kernelOffset; j <= kernelOffset; j++)
+                    {
+                        x1 = Circular(cols, x - j);
+                        y1 = Circular(rows, y - k);
 
-						dx += sobelx[j + kernelOffset][k + kernelOffset] * temp[y1][x1];
-						dy += sobely[j + kernelOffset][k + kernelOffset] * temp[y1][x1];
-					}
-				}
+                        dx += sobelx[j + kernelOffset][k + kernelOffset] * temp[y1][x1];
+                        dy += sobely[j + kernelOffset][k + kernelOffset] * temp[y1][x1];
+                    }
+                }
 
-				gradDir[y][x] = std::make_pair(hypot(dx, dy), fmod(atan2(dy, dx) + M_PI, M_PI) / M_PI * 8);
-			}
-		}
+                gradDir[y][x] = std::make_pair(hypot(dx, dy), fmod(atan2(dy, dx) + M_PI, M_PI) / M_PI * 8);
+            }
+        }
 
-		// # Non-maximum suppression
-		for (unsigned int y = 1; y < rows - 1; y++)
-		{
-			for (unsigned int x = 1; x < cols - 1; x++)
-			{
-				g = gradDir[y][x].first;
-				dir = gradDir[y][x].second;
-				
-				if ((1 >= dir || dir > 7) && gradDir[y][x - 1].first < g && gradDir[y][x + 1].first < g ||
-					(1 < dir || dir <= 3) && gradDir[y - 1][x - 1].first < g && gradDir[y + 1][x + 1].first < g ||
-					(3 < dir || dir <= 5) && gradDir[y - 1][x].first < g && gradDir[y + 1][x].first < g ||
-					(5 < dir || dir <= 7) && gradDir[y - 1][x + 1].first < g && gradDir[y + 1][x - 1].first < g)
-					nms[y][x] = g;
-				else
-					nms[y][x] = 0.0;
-			}
-		}
+        // # Non-maximum suppression
+        for (unsigned int y = 1; y < rows - 1; y++)
+        {
+            for (unsigned int x = 1; x < cols - 1; x++)
+            {
+                g = gradDir[y][x].first;
+                dir = gradDir[y][x].second;
+                
+                if ((1 >= dir || dir > 7) && gradDir[y][x - 1].first < g && gradDir[y][x + 1].first < g ||
+                    (1 < dir || dir <= 3) && gradDir[y - 1][x - 1].first < g && gradDir[y + 1][x + 1].first < g ||
+                    (3 < dir || dir <= 5) && gradDir[y - 1][x].first < g && gradDir[y + 1][x].first < g ||
+                    (5 < dir || dir <= 7) && gradDir[y - 1][x + 1].first < g && gradDir[y + 1][x - 1].first < g)
+                    nms[y][x] = g;
+                else
+                    nms[y][x] = 0.0;
+            }
+        }
 
-		// # Edge Tracking by Hysteresis
-		Hysteresis(nms, dst, tmin, tmax);
-	}
+        // # Edge Tracking by Hysteresis
+        Hysteresis(nms, dst, tmin, tmax);
+    }
 
-	void Threshold(Mat<Uint8>& src, Uint8 value)
-	{
-		for (unsigned int y = 0; y < src.Rows(); y++)
-		{
-			for (unsigned int x = 0; x < src.Cols(); x++)
-			{
-				src[y][x] = src[y][x] >= value ? 255 : 0;
-			}
-		}
-	}
+    void Threshold(Mat<Uint8>& src, Uint8 value)
+    {
+        for (unsigned int y = 0; y < src.Rows(); y++)
+        {
+            for (unsigned int x = 0; x < src.Cols(); x++)
+            {
+                src[y][x] = src[y][x] >= value ? 255 : 0;
+            }
+        }
+    }
 
-	/*
-		HoughTransform and HoughLines - taken and slightly modified from the following tutorial:
-		http://www.keymolen.com/2013/05/hough-transformation-c-implementation.html
+    /*
+        HoughTransform and HoughLines - taken and slightly modified from the following tutorial:
+        http://www.keymolen.com/2013/05/hough-transformation-c-implementation.html
 
 
-		also:
-		opencv/modules/imgproc/src/hough.cpp
-	*/
+        also:
+        opencv/modules/imgproc/src/hough.cpp
+    */
 
-	void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator)
-	{
-		double r;
-		unsigned int rows = edges.Rows();
-		unsigned int cols = edges.Cols();
-		double centerY  = rows / 2.0;
-		double centerX = cols / 2.0;
+    void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator)
+    {
+        double r;
+        unsigned int rows = edges.Rows();
+        unsigned int cols = edges.Cols();
+        double centerY  = rows / 2.0;
+        double centerX = cols / 2.0;
 
-		double houghH = (sqrt(2.0) * (rows > cols ? rows : cols)) / 2.0; // max distance [rect diag]
-		unsigned int accH = houghH * 2.0;
-		unsigned int accW = 180;
+        double houghH = (sqrt(2.0) * (rows > cols ? rows : cols)) / 2.0; // max distance [rect diag]
+        unsigned int accH = houghH * 2.0;
+        unsigned int accW = 180;
 
-		accumulator.Resize(accH, accW);
-		accumulator.Value(0);
-		//memset(accumulator[0], 0, rows * cols * sizeof(unsigned int));
+        accumulator.Resize(accH, accW);
+        accumulator.Value(0);
+        //memset(accumulator[0], 0, rows * cols * sizeof(unsigned int));
 
-		for (unsigned int y = 0; y < rows; y++)
-		{
-			for (unsigned int x = 0; x < cols; x++)
-			{
-				if (edges[y][x]) // assume edges are threshed
-				{
-					for (unsigned int a = 0; a < 180; a++)
-					{
-						r = ((x - centerX) * cos(a * deg2rad)) + ((y - centerY) * sin(a * deg2rad));
-						accumulator[static_cast<int>(r + houghH)][a]++;
-					}
-				}
-			}
-		}
-	}
+        for (unsigned int y = 0; y < rows; y++)
+        {
+            for (unsigned int x = 0; x < cols; x++)
+            {
+                if (edges[y][x]) // assume edges are threshed
+                {
+                    for (unsigned int a = 0; a < 180; a++)
+                    {
+                        r = ((x - centerX) * cos(a * deg2rad)) + ((y - centerY) * sin(a * deg2rad));
+                        accumulator[static_cast<int>(r + houghH)][a]++;
+                    }
+                }
+            }
+        }
+    }
 
-	std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold)
-	{
-		int max, r1, t1;
-		double radAngle, x1, y1, x2, y2;
-		std::vector<Line> lines;
-		Mat<unsigned int> accumulator;
+    std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold)
+    {
+        int max, r1, t1;
+        double radAngle, x1, y1, x2, y2;
+        std::vector<Line> lines;
+        Mat<unsigned int> accumulator;
 
-		HoughTransform(edges, accumulator);
+        HoughTransform(edges, accumulator);
 
-		unsigned int accH = accumulator.Rows();
-		unsigned int accW = accumulator.Cols();
-		double rows = static_cast<double>(edges.Rows());
-		double cols = static_cast<double>(edges.Cols());
+        unsigned int accH = accumulator.Rows();
+        unsigned int accW = accumulator.Cols();
+        double rows = static_cast<double>(edges.Rows());
+        double cols = static_cast<double>(edges.Cols());
 
-		for (unsigned int r = 0; r < accH; r++) 
-		{
-			for (unsigned int t = 0; t < accW; t++)
-			{
-				if (accumulator[r][t] >= threshold)
-				{
-					max = accumulator[r][t];
+        for (unsigned int r = 0; r < accH; r++) 
+        {
+            for (unsigned int t = 0; t < accW; t++)
+            {
+                if (accumulator[r][t] >= threshold)
+                {
+                    max = accumulator[r][t];
 
-					for (int ly = -4; ly <= 4; ly++) // search a 9x9 patch
-					{
-						r1 = ly + r;
-						for (int lx = -4; lx <= 4; lx++)
-						{
-							t1 = lx + t;
-							if (r1 >= 0 && r1 < accH && t1 >= 0 && t1 < accW)
-							{
-								if (accumulator[r1][t1] > max)
-								{
-									max = accumulator[r1][t1];
-									ly = lx = 5; // exit both loops
-								}
-							}
-						}
-					}
+                    for (int ly = -4; ly <= 4; ly++) // search a 9x9 patch
+                    {
+                        r1 = ly + r;
+                        for (int lx = -4; lx <= 4; lx++)
+                        {
+                            t1 = lx + t;
+                            if (r1 >= 0 && r1 < accH && t1 >= 0 && t1 < accW)
+                            {
+                                if (accumulator[r1][t1] > max)
+                                {
+                                    max = accumulator[r1][t1];
+                                    ly = lx = 5; // exit both loops
+                                }
+                            }
+                        }
+                    }
 
-					if (max > accumulator[r][t])
-						continue;
+                    if (max > accumulator[r][t])
+                        continue;
 
-					x1 = x2 = y1 = y2 = 0.0;
-					radAngle = t * deg2rad;
+                    x1 = x2 = y1 = y2 = 0.0;
+                    radAngle = t * deg2rad;
 
-					// https://stackoverflow.com/questions/13663545/does-one-double-promote-every-int-in-the-equation-to-double !!!!!!!!!!!!!!!!!!!!!
-					if (t >= 45 && t <= 135)
-					{
-						x1 = 0.0;
-						y1 = ((r - accH / 2.0) - ((x1 - cols / 2.0) * cos(radAngle))) / sin(radAngle) + (rows / 2.0);
-						x2 = cols;
-						y2 = ((r - accH / 2.0) - ((x2 - cols / 2.0) * cos(radAngle))) / sin(radAngle) + (rows / 2.0);
-					}
-					else
-					{
-						y1 = 0.0;
-						x1 = ((r - accH / 2.0) - ((y1 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
-						y2 = rows;
-						x2 = ((r - accH / 2.0) - ((y2 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
-					}
+                    // https://stackoverflow.com/questions/13663545/does-one-double-promote-every-int-in-the-equation-to-double !!!!!!!!!!!!!!!!!!!!!
+                    if (t >= 45 && t <= 135)
+                    {
+                        x1 = 0.0;
+                        y1 = ((r - accH / 2.0) - ((x1 - cols / 2.0) * cos(radAngle))) / sin(radAngle) + (rows / 2.0);
+                        x2 = cols;
+                        y2 = ((r - accH / 2.0) - ((x2 - cols / 2.0) * cos(radAngle))) / sin(radAngle) + (rows / 2.0);
+                    }
+                    else
+                    {
+                        y1 = 0.0;
+                        x1 = ((r - accH / 2.0) - ((y1 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
+                        y2 = rows;
+                        x2 = ((r - accH / 2.0) - ((y2 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
+                    }
 
-					lines.emplace_back(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2));
-				}
-			}
-		}
+                    lines.emplace_back(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2));
+                }
+            }
+        }
 
-		return lines;
-	}
+        return lines;
+    }
 }

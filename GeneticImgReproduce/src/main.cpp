@@ -15,9 +15,9 @@ constexpr auto maxLineLen = 35;
 
 int main(int argc, char* argv[])
 {
-	gir::Simulation sim(w, h, popSize, transMutChance, rotMutChance, elitismM);
-	sim.Prepare(file, threshold, minLineLen, maxLineLen);
-	sim.Run();
+    gir::Simulation sim(w, h, popSize, transMutChance, rotMutChance, elitismM);
+    sim.Prepare(file, threshold, minLineLen, maxLineLen);
+    sim.Run();
 
-	return 0;
+    return 0;
 }
