@@ -11,11 +11,13 @@ namespace gir
 	class GeneticOptimizer
 	{
 	private:
-		unsigned int m_Iteration;
-		unsigned int m_PopSize;
-		unsigned int m_Elitismn;
-		double m_TransMutChance;
-		double m_RotMutChance;
+		using SelectionPair = std::pair<const SolutionCandidate&, const SolutionCandidate&>;
+	private:
+		unsigned int m_Iteration = 0;
+		unsigned int m_PopSize = 0;
+		unsigned int m_Elitismn = 0;
+		double m_TransMutChance = 0;
+		double m_RotMutChance = 0;
 
 		std::vector<SolutionCandidate> m_Population;
 
@@ -23,12 +25,11 @@ namespace gir
 		std::vector<Line> m_Lines;
 		std::shared_ptr<RNG> m_Rng;
 
-		unsigned int m_ImgRows;
-		unsigned int m_ImgCols;
+		unsigned int m_ImgRows = 0;
+		unsigned int m_ImgCols = 0;
 	public:
-		GeneticOptimizer();
+		GeneticOptimizer() = delete;
 		GeneticOptimizer(unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn);
-		~GeneticOptimizer();
 
 		void PrepareGA(const sf::Image& origImage, Uint8 threshold, unsigned int minLineLen, unsigned int maxLineLen);
 		const SolutionCandidate& RunIterations(unsigned int nIterations);
@@ -38,7 +39,7 @@ namespace gir
 		inline unsigned int LinesSize() const { return m_Lines.size(); }
 		inline const Mat<Uint8>& ThreshEdges() const { return m_ThreshEdges; }
 	private:
-		std::pair<const SolutionCandidate*,  const SolutionCandidate*> Selection(const std::vector<double>& weights);
+		SelectionPair Selection(const std::vector<double>& weights);
 	};
 }
 

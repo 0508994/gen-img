@@ -12,15 +12,11 @@
 namespace gir
 {
 	using sf::Uint8;
-	typedef std::pair<sf::Vector2f, sf::Vector2f> Line;
+	using Line = std::pair<sf::Vector2f, sf::Vector2f>;
+	using LineRef = std::pair<sf::Vector2f&, sf::Vector2f&>;
+	using LineConstRef = std::pair<const sf::Vector2f&, const sf::Vector2f&>; 
 	
-	//template<class T>
-	//constexpr const T& Clamp(const T& v, const T& lo, const T& hi)
-	//{
-	//	return v <= lo ? lo : (v >= hi ? hi : v);
-	//}
-
-	inline int Circular(const int& M, const int& x)
+	constexpr inline int Circular(const int& M, const int& x)
 	{
 		return x < 0 ? (x + M) : (x >= M ? (x - M) : x);
 	}

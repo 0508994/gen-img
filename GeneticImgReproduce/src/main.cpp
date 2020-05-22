@@ -1,22 +1,22 @@
 #include <SFML/Graphics.hpp>
 #include "Simulation/Simulation.h"
 
-#define W 1280
-#define H 720
+constexpr auto w = 1280;
+constexpr auto h = 720;
 
-#define FILE "../img/doh.png"
-#define POPSIZE 80
-#define ROTMUTCHANCE 0.5
-#define TRANSMUTCHANCE 0.5
-#define ELITISM 2
-#define THRESHOLD 125
-#define MINLINELEN 10
-#define MAXLINELEN 35
+constexpr auto file = "../img/doh.png";
+constexpr auto popSize = 80;
+constexpr auto rotMutChance = 0.5;
+constexpr auto transMutChance = 0.5;
+constexpr auto elitismM = 2;
+constexpr auto threshold = 125;
+constexpr auto minLineLen = 10;
+constexpr auto maxLineLen = 35;
 
 int main(int argc, char* argv[])
 {
-	gir::Simulation sim(W, H, POPSIZE, TRANSMUTCHANCE, ROTMUTCHANCE, ELITISM);
-	sim.Prepare(FILE, THRESHOLD, MINLINELEN, MAXLINELEN);
+	gir::Simulation sim(w, h, popSize, transMutChance, rotMutChance, elitismM);
+	sim.Prepare(file, threshold, minLineLen, maxLineLen);
 	sim.Run();
 
 	return 0;

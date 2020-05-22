@@ -358,7 +358,7 @@ namespace gir
 						x2 = ((r - accH / 2.0) - ((y2 - rows / 2.0) * sin(radAngle))) / cos(radAngle) + (cols / 2.0);
 					}
 
-					lines.emplace_back(std::make_pair(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2)));
+					lines.emplace_back(sf::Vector2f(x1, y1), sf::Vector2f(x2, y2));
 				}
 			}
 		}

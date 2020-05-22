@@ -16,14 +16,9 @@ namespace gir
 		
 		std::shared_ptr<RNG> m_Rng;
 	public:
-		SolutionCandidate();
 		SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, const std::shared_ptr<RNG>& rng);
-		SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, const std::shared_ptr<RNG>& rng);
-		SolutionCandidate(const SolutionCandidate& other);
-		SolutionCandidate(SolutionCandidate&& other);
-		~SolutionCandidate();
-
-		SolutionCandidate& operator=(SolutionCandidate&& other);
+		SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows,
+						  unsigned int solutionCols, const std::shared_ptr<RNG>& rng);
 
 		void ComputeFitness(const Mat<Uint8>& threshEdges);
 		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2);

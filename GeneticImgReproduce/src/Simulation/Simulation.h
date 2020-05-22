@@ -10,8 +10,8 @@ namespace gir
 	class Simulation
 	{
 	private:
-		unsigned int m_WindowWidth;
-		unsigned int m_WindowHeight;
+		unsigned int m_WindowWidth = 0;
+		unsigned int m_WindowHeight = 0;
 	
 		sf::RenderWindow m_Window;
 		GeneticOptimizer m_GeneticOptimizer;
@@ -27,14 +27,13 @@ namespace gir
 		sf::Text m_Info;
 
 		sf::Vertex m_Background[4];
-		bool m_Running;
-		bool m_Paused;
+		bool m_Running = false;
+		bool m_Paused = false;
 
 		unsigned int m_ItersToRun;
 	public:
-		Simulation();
-		Simulation(unsigned int width, unsigned int height, unsigned int popSize = 20, double transMutChance = 0.001, double rotMutChance = 0.001, unsigned int elitismn = 0);
-		~Simulation();
+		Simulation(unsigned int width, unsigned int height, unsigned int popSize = 20,
+				   double transMutChance = 0.001, double rotMutChance = 0.001, unsigned int elitismn = 0);
 
 		void Prepare(std::string file, unsigned int threshold, unsigned int minLineLen, unsigned int maxLineLen);
 		void Render(const SolutionCandidate& solution);

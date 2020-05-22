@@ -1,11 +1,7 @@
 #include "SolutionCandidate.h"
 
 namespace gir
-{	
-	SolutionCandidate::SolutionCandidate() {}
-
-	SolutionCandidate::~SolutionCandidate() {}
-
+{
 	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, const std::shared_ptr<RNG>& rng)
 		: m_Fitness(0)
 		, m_LinesSize(lines->size())
@@ -28,7 +24,8 @@ namespace gir
 		ComputeFitness(threshEdges);
 	}
 
-	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows, unsigned int solutionCols, const std::shared_ptr<RNG>& rng)
+	SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows,
+										 unsigned int solutionCols, const std::shared_ptr<RNG>& rng)
 		: m_Fitness(0)
 		, m_LinesSize(lines->size())
 		, m_LinesPtr(lines)
@@ -38,43 +35,6 @@ namespace gir
 		m_Rotations.reserve(m_LinesSize);
 	}
 
-	SolutionCandidate::SolutionCandidate(const SolutionCandidate& other)
-		: m_Fitness(other.m_Fitness)
-		, m_LinesSize(other.m_LinesSize)
-		, m_LinesPtr(other.m_LinesPtr)
-		, m_Translations(other.m_Translations)
-		, m_Rotations(other.m_Rotations)
-		, m_Rng(other.m_Rng)
-	{
-	}
-
-	SolutionCandidate::SolutionCandidate(SolutionCandidate&& other)
-		: m_Fitness(other.m_Fitness)
-		, m_LinesSize(other.m_LinesSize)
-		, m_LinesPtr(other.m_LinesPtr)
-		, m_Rng(other.m_Rng)
-		, m_Rotations(std::move(other.m_Rotations))
-	    , m_Translations(std::move(other.m_Translations))
-	{
-		other.m_LinesPtr = nullptr;
-	}
-
-	SolutionCandidate& SolutionCandidate::operator=(SolutionCandidate&& other)
-	{
-		m_Fitness = other.m_Fitness;
-		m_LinesPtr = other.m_LinesPtr;
-		m_LinesSize = other.m_LinesSize;
-		m_Fitness = other.m_Fitness;
-		m_Rng = other.m_Rng;
-
-		m_Rotations = std::move(other.m_Rotations);
-		m_Translations = std::move(other.m_Translations);
-
-		other.m_LinesPtr = nullptr;
-
-		return *this;
-	}
-
 	void SolutionCandidate::ComputeFitness(const Mat<Uint8>& threshEdges)
 	{
 		//assert(m_Solution.Cols() == threshEdges.Cols() && m_Solution.Rows() == threshEdges.Rows());
@@ -82,9 +42,9 @@ namespace gir
 		auto& lines = *m_LinesPtr;
 		unsigned int rows = threshEdges.Rows(), cols = threshEdges.Cols();
 		int dx, dy, p, x, y, x0, x1, y0, y1;
-		bool *used = new bool[rows * cols];
+		std::unique_ptr<bool[]> used(new bool[rows * cols]);
 		
-		memset(used, 0, rows * cols);
+		memset(used.get(), 0, rows * cols);
 		m_Fitness = 0;
 
 		for (unsigned int i = 0; i < m_LinesSize; i++)
@@ -98,7 +58,8 @@ namespace gir
 				transform.transformPoint(lines[i].first),
 				transform.transformPoint(lines[i].second));
 
-			ClampLine(transfLine, rows, cols);
+			//ClampLine(transfLine, rows, cols);
+			if (!WithinBounds(transfLine, rows, cols)) continue;
 
 			// Compare pixels from the thresholded edges to the ones
 			// computed from the Bressenhams line drawing algorithm
@@ -120,41 +81,37 @@ namespace gir
 
 			while (x < x1)
 			{
+				// Fitness contribution of the current point
+				if (threshEdges[y][x] == 255 && !used[y * cols + x])
+				{
+					m_Fitness++;
+					used[y * cols + x] = true;
+				}
+				else if (used[y * cols + x] && m_Fitness != 0)
+				{
+					m_Fitness--;
+				}
+
+				// Calculate the next point using Bressenhams algorithm
 				if (p >= 0)
 				{
-					if (threshEdges[y][x] == 255 && !used[y * cols + x])
-					{
-						m_Fitness++;
-						used[y * cols + x] = true;
-					}
-					else if (used[y * cols + x] && m_Fitness != 0)
-						m_Fitness--;
-					
 					y = y + 1;
 					p = p + 2 * dy - 2 * dx;
 				}
 				else
 				{
-					if (threshEdges[y][x] == 255 && !used[y * cols + x])
-					{
-						m_Fitness++;
-						used[y * cols + x] = true;
-					}
-					else if (used[y * cols + x] && m_Fitness != 0)
-						m_Fitness--;
-
 					p = p + 2 * dy;
 				}
+
 				x = x + 1;
 			}
 		}
-
-		delete[] used;
 	}
 
-	void SolutionCandidate::Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2, SolutionCandidate& child1, SolutionCandidate& child2)
+	void SolutionCandidate::Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2,
+									  SolutionCandidate& child1, SolutionCandidate& child2)
 	{	
-		auto rng = parent1.m_Rng;
+		const auto& rng = parent1.m_Rng;
 		unsigned int splitIndex = rng->RandomSplitIndex();
 		
 		for (unsigned int i = 0; i < splitIndex; i++)
@@ -182,16 +139,18 @@ namespace gir
 		{
 			// Mutate the random number of line translations 
 			for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
+			{
 				m_Translations[m_Rng->RandomLineIndex()] = sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY());
-				//m_Translations[m_Rng->RandomLineIndex()] += sf::Vector2f(m_Rng->RandomIncr(), m_Rng->RandomIncr());
+			}
 		}
 
 		if (m_Rng->Probability() <= rotMutChance)
 		{
 			// Mutate the random number of line rotations
 			for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
-				//m_Rotations[m_Rng->RandomLineIndex()] = m_Rng->RandomAngle();
+			{
 				m_Rotations[m_Rng->RandomLineIndex()] += m_Rng->RandomIncr() * 2;
+			}
 		}
 	}
 
@@ -209,9 +168,7 @@ namespace gir
 			transform.rotate(m_Rotations[i]);
 			transform.translate(m_Translations[i]);
 
-			result.emplace_back(std::make_pair(
-				transform.transformPoint(lines[i].first),
-				transform.transformPoint(lines[i].second)));
+			result.emplace_back(transform.transformPoint(lines[i].first), transform.transformPoint(lines[i].second));
 		}
 
 		return result;
@@ -219,8 +176,8 @@ namespace gir
 
 	void SolutionCandidate::ClampLine(Line& line, unsigned int rows, unsigned int columns) const
 	{
-		float rowsf = static_cast<int>(rows);
-		float colsf = static_cast<int>(columns);
+		float rowsf = static_cast<float>(rows);
+		float colsf = static_cast<float>(columns);
 
 		line.first.x = std::clamp(line.first.x, 0.0f, colsf - 1);
 		line.second.x = std::clamp(line.second.x, 0.0f, colsf - 1);
@@ -230,8 +187,8 @@ namespace gir
 
 	bool SolutionCandidate::WithinBounds(const Line& line, unsigned int rows, unsigned int columns) const
 	{
-		float rowsf = static_cast<int>(rows);
-		float colsf = static_cast<int>(columns);
+		float rowsf = static_cast<float>(rows);
+		float colsf = static_cast<float>(columns);
 
 		if (line.first.x < 0 || line.first.x >= colsf ||
 			line.second.x < 0 || line.second.x >= colsf ||

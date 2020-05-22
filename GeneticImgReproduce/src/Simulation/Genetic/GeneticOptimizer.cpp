@@ -2,10 +2,6 @@
 
 namespace gir
 {
-	GeneticOptimizer::GeneticOptimizer() :m_PopSize(0) {}
-
-	GeneticOptimizer::~GeneticOptimizer() {}
-
 	GeneticOptimizer::GeneticOptimizer(unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn)
 		: m_PopSize(popSize)
 		, m_Elitismn(elitismn)
@@ -47,15 +43,19 @@ namespace gir
 
 			whitePixelCount -= lineLen;
 			if (whitePixelCount - lineLen < 0)
+			{
 				break;
+			}
 
-			m_Lines.emplace_back(std::make_pair(sf::Vector2f(-halfLineLen, 0.0f), sf::Vector2f(halfLineLen, 0.0f)));
+			m_Lines.emplace_back(sf::Vector2f(-halfLineLen, 0.0f), sf::Vector2f(halfLineLen, 0.0f));
 		}
 
 		m_Rng = std::make_shared<RNG>(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.8);
 	
 		for (unsigned int i = 0; i < m_PopSize; i++)
-			m_Population.emplace_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
+		{
+			m_Population.push_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
+		}
 	}
 
 	static bool SelectionCompare(std::pair<double, unsigned int> l, std::pair<double, unsigned int> r)
@@ -63,27 +63,24 @@ namespace gir
 		return l.first > r.first;
 	}
 
-	std::pair<const SolutionCandidate*, const SolutionCandidate*> GeneticOptimizer::Selection(const std::vector<double>& weights) 
+	GeneticOptimizer::SelectionPair GeneticOptimizer::Selection(const std::vector<double>& weights)
 	{
-		//auto& generator = m_Generator;
-		//std::discrete_distribution<int> distr(probas.begin(), probas.end());
-		//std::generate(indices[0], indices[1], [&generator, &distr]() { return distr(generator); });
-		
-		//static std::uniform_real_distribution<double> unif(0.0, 1.0);
-
+		// Poor poor poor poor poor poor version of weighted selection
 		unsigned int i1, i2;
 		std::vector<std::pair<double, int>> weightedIndices;
 		weightedIndices.reserve(weights.size());
 
 		for (unsigned int i = 0; i < weights.size(); i++)
-			weightedIndices.emplace_back(std::make_pair(m_Rng->Probability() * weights[i], i));
-		
+		{
+			weightedIndices.emplace_back(m_Rng->Probability() * weights[i], i);
+		}
+
 		std::sort(weightedIndices.begin(), weightedIndices.end(), SelectionCompare);
 		
 		i1 = weightedIndices[0].second;
 		i2 = weightedIndices[1].second;
 
-		return std::make_pair(&m_Population[i1], &m_Population[i2]);
+		return std::make_pair(std::cref(m_Population[i1]), std::cref(m_Population[i2]));
 	}
 
 	const SolutionCandidate& GeneticOptimizer::RunIterations(unsigned int nIterations)
@@ -98,23 +95,27 @@ namespace gir
 			// Copy the best solutions from the last iteration
 			newPopulation.reserve(m_PopSize);
 			for (unsigned int i = 0; i < m_Elitismn; i++)
+			{
 				newPopulation.push_back(m_Population[i]);
+			}
 
 			// Calculate the probability distribution
 			for (const auto& sc : m_Population)
+			{
 				accFitness += sc.GetFitness();
+			}
 
 			if (accFitness == 0.0) accFitness = 1.0;
 
 			for (unsigned int i = 0; i < m_PopSize; i++)
+			{
 				weights[i] = m_Population[i].GetFitness() / accFitness;
+			}
 
 			while (newPopulation.size() < m_PopSize)
 			{
 				// Perform the selection
-				auto parents = Selection(weights);
-				auto& parent1 = *(parents.first);
-				auto& parent2 = *(parents.second);
+				const auto& [parent1, parent2] = Selection(weights);
 
 				// Crossover
 				SolutionCandidate child1(&m_Lines, m_ImgRows, m_ImgCols, m_Rng), child2(&m_Lines, m_ImgRows, m_ImgCols, m_Rng);
@@ -129,8 +130,8 @@ namespace gir
 				child2.ComputeFitness(m_ThreshEdges);
 
 				// Add the children to the new population
-				newPopulation.emplace_back(std::move(child1));
-				newPopulation.emplace_back(std::move(child2));
+				newPopulation.push_back(std::move(child1));
+				newPopulation.push_back(std::move(child2));
 			}
 
 			m_Iteration++;

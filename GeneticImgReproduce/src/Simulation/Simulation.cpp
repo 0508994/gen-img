@@ -4,11 +4,8 @@
 
 namespace gir
 {
-	Simulation::Simulation() {}
-	
-	Simulation::~Simulation() {}
-	
-	Simulation::Simulation(unsigned int width, unsigned int height, unsigned int popSize, double transMutChance, double rotMutChance, unsigned int elitismn)
+	Simulation::Simulation(unsigned int width, unsigned int height, unsigned int popSize,
+						   double transMutChance, double rotMutChance, unsigned int elitismn)
 		: m_WindowWidth(width)
 		, m_WindowHeight(height)
 		, m_Window(sf::VideoMode(width, height), "Image Reconstruction", sf::Style::Titlebar | sf::Style::Close)
@@ -135,7 +132,9 @@ namespace gir
 		{
 			// All for now
 			if (e.type == sf::Event::Closed)
+			{
 				m_Running = false;
+			}
 			else if (e.type == sf::Event::KeyPressed)
 			{
 				switch (e.key.code)
