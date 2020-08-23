@@ -9,10 +9,10 @@ namespace gir
     {
         float sum;
         int x1, y1;
-        unsigned int cols = src.Cols();
-        unsigned int rows = src.Rows();
-        unsigned int kernelSize = kernel.size();
-        int kernelOffset = kernelSize / 2;
+        const unsigned int cols = src.Cols();
+        const unsigned int rows = src.Rows();
+        const unsigned int kernelSize = kernel.size();
+        const int kernelOffset = kernelSize / 2;
 
         for (unsigned int y = 0; y < rows; y++)
         {
@@ -102,10 +102,10 @@ namespace gir
     {
         float dx, dy;
         int x1, y1;
-        unsigned int cols = src.Cols();
-        unsigned int rows = src.Rows();
-        unsigned int kernelSize = kx.size();
-        int kernelOffset = kernelSize / 2;
+        const unsigned int cols = src.Cols();
+        const unsigned int rows = src.Rows();
+        const unsigned int kernelSize = kx.size();
+        const int kernelOffset = kernelSize / 2;
 
         for (unsigned int y = 0; y < rows; y++)
         {
@@ -135,9 +135,9 @@ namespace gir
     void ToGrayscale(const sf::Image& inRgba, Mat<Uint8>& outGray)
     {
         const Uint8* pByteBuffer = inRgba.getPixelsPtr();
-        auto sfSize = inRgba.getSize();
+        const auto sfSize = inRgba.getSize();
         
-        unsigned int numPixels = sfSize.x * sfSize.y;
+        const unsigned int numPixels = sfSize.x * sfSize.y;
 
         for (unsigned int i = 0; i < numPixels; ++i)
         {
@@ -156,11 +156,13 @@ namespace gir
     void ToSFMLImage(const Mat<Uint8>& inGray, sf::Image& outRgba)
     {
         for (unsigned int y = 0; y < inGray.Rows(); y++)
+        {
             for (unsigned int x = 0; x < inGray.Cols(); x++)
             {
                 Uint8 g = inGray[y][x];
                 outRgba.setPixel(x, y, sf::Color(g, g, g, 255));
             }
+        }
     }
 
     void Sobel(const Mat<Uint8>& src, Mat<Uint8>& dst)
@@ -187,9 +189,9 @@ namespace gir
     {
         float dx, dy, g, dir;
         int x1, y1;
-        unsigned int cols = src.Cols();
-        unsigned int rows = src.Rows();
-        unsigned int kernelSize = sobelx.size();
+        const unsigned int cols = src.Cols();
+        const unsigned int rows = src.Rows();
+        const unsigned int kernelSize = sobelx.size();
         int kernelOffset = kernelSize / 2;
 
         Mat<float> temp(rows, cols);
@@ -268,14 +270,14 @@ namespace gir
     void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator)
     {
         double r;
-        unsigned int rows = edges.Rows();
-        unsigned int cols = edges.Cols();
-        double centerY  = rows / 2.0;
-        double centerX = cols / 2.0;
+        const unsigned int rows = edges.Rows();
+        const unsigned int cols = edges.Cols();
+        const double centerY  = rows / 2.0;
+        const double centerX = cols / 2.0;
 
-        double houghH = (sqrt(2.0) * (rows > cols ? rows : cols)) / 2.0; // max distance [rect diag]
-        unsigned int accH = houghH * 2.0;
-        unsigned int accW = 180;
+        const double houghH = (sqrt(2.0) * (rows > cols ? rows : cols)) / 2.0; // max distance [rect diag]
+        const unsigned int accH = houghH * 2.0;
+        const unsigned int accW = 180;
 
         accumulator.Resize(accH, accW);
         accumulator.Value(0);
@@ -306,10 +308,10 @@ namespace gir
 
         HoughTransform(edges, accumulator);
 
-        unsigned int accH = accumulator.Rows();
-        unsigned int accW = accumulator.Cols();
-        double rows = static_cast<double>(edges.Rows());
-        double cols = static_cast<double>(edges.Cols());
+        const unsigned int accH = accumulator.Rows();
+        const unsigned int accW = accumulator.Cols();
+        const double rows = static_cast<double>(edges.Rows());
+        const double cols = static_cast<double>(edges.Cols());
 
         for (unsigned int r = 0; r < accH; r++) 
         {

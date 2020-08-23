@@ -31,7 +31,7 @@ namespace gir
         GeneticOptimizer() = delete;
         GeneticOptimizer(unsigned int popSize, double transMutChance,
                          double rotMutChance, unsigned int elitismn);
-
+    public:
         void PrepareGA(const sf::Image& origImage, Uint8 threshold,
                        unsigned int minLineLen, unsigned int maxLineLen);
         const SolutionCandidate& RunIterations(unsigned int nIterations);

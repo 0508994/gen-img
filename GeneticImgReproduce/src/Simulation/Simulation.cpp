@@ -1,9 +1,9 @@
 #include "Simulation.h"
 
-#define FPS 60
-
 namespace gir
 {
+    static constexpr unsigned int fps = 60;
+
     Simulation::Simulation(unsigned int width, unsigned int height, unsigned int popSize,
                            double transMutChance, double rotMutChance, unsigned int elitismn)
         : m_WindowWidth(width)
@@ -12,7 +12,7 @@ namespace gir
         , m_GeneticOptimizer(popSize, transMutChance, rotMutChance, elitismn)
         , m_ItersToRun(1)
     {
-        m_Window.setFramerateLimit(FPS);
+        m_Window.setFramerateLimit(fps);
 
         m_Font.loadFromFile("C:/Windows/Fonts/Calibri.ttf");
 
@@ -93,7 +93,7 @@ namespace gir
         
 
         // get fps
-        int fps = static_cast<int>(1.0 / m_Clock.getElapsedTime().asSeconds());
+        const int fps = static_cast<int>(1.0 / m_Clock.getElapsedTime().asSeconds());
         m_Clock.restart();
 
         std::stringstream ss;
@@ -131,7 +131,6 @@ namespace gir
         sf::Event e;
         while (m_Window.pollEvent(e))
         {
-            // All for now
             if (e.type == sf::Event::Closed)
             {
                 m_Running = false;
@@ -147,6 +146,7 @@ namespace gir
                     case sf::Keyboard::Down:
                         m_ItersToRun--;
                         m_ItersToRun = m_ItersToRun > 0 ? m_ItersToRun : 10;
+                        break;
                     default:
                         break;
                 }

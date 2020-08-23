@@ -34,11 +34,12 @@ namespace gir
     public:
         Simulation(unsigned int width, unsigned int height, unsigned int popSize = 20,
                    double transMutChance = 0.001, double rotMutChance = 0.001, unsigned int elitismn = 0);
-
+    public:
         void Prepare(std::string file, unsigned int threshold,
                      unsigned int minLineLen, unsigned int maxLineLen);
-        void Render(const SolutionCandidate& solution);
         void Run();
+    private:
+        void Render(const SolutionCandidate& solution);
         void HandleEvents();
     };
 }

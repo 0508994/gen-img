@@ -18,7 +18,7 @@ namespace gir
     {
         assert(maxLineLen > minLineLen);
 
-        auto size = origImage.getSize();
+        const auto size = origImage.getSize();
         m_ImgRows = size.y;
         m_ImgCols = size.x;
         Mat<Uint8> gray(m_ImgRows, m_ImgCols);
@@ -34,20 +34,15 @@ namespace gir
         int whitePixelCount = m_ThreshEdges.ValueCount(255) * 1.5; 
         assert(whitePixelCount > 0);
 
-        int lineLen, halfLineLen;
-
         while (whitePixelCount > 0)
         {
             // All lines are zero centered with y0=y1=0
 
-            lineLen = lineLenDistr(gen);
-            halfLineLen = lineLen / 2;
+            const int lineLen = lineLenDistr(gen);
+            const int halfLineLen = lineLen / 2;
 
             whitePixelCount -= lineLen;
-            if (whitePixelCount - lineLen < 0)
-            {
-                break;
-            }
+            if (whitePixelCount - lineLen < 0) break;
 
             m_Lines.emplace_back(sf::Vector2f(-halfLineLen, 0.0f), sf::Vector2f(halfLineLen, 0.0f));
         }

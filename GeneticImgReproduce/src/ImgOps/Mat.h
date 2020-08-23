@@ -83,9 +83,9 @@ namespace gir
     {
         if (m_Mat)
         {
-            unsigned int m = other.m_M;
-            unsigned int n = other.m_N;
-            unsigned int nel = m * n;
+            const unsigned int m = other.m_M;
+            const unsigned int n = other.m_N;
+            const unsigned int nel = m * n;
 
             m_Mat[0] = new T[nel];
             for (unsigned int i = 1; i < m; i++)
@@ -108,16 +108,19 @@ namespace gir
     template <typename T>
     Mat<T>& Mat<T>::operator=(Mat<T>&& other)
     {
-        if (m_Mat)
+        if (this != &other)
         {
-            delete[] m_Mat[0];
-            delete[] m_Mat;
-        }
+            if (m_Mat)
+            {
+                delete[] m_Mat[0];
+                delete[] m_Mat;
+            }
 
-        m_M = other.m_M;
-        m_N = other.m_N;
-        m_Mat = other.m_Mat;
-        other.m_Mat = nullptr;
+            m_M = other.m_M;
+            m_N = other.m_N;
+            m_Mat = other.m_Mat;
+            other.m_Mat = nullptr;
+        }
 
         return *this;
     }
@@ -132,31 +135,25 @@ namespace gir
         }
     }
 
-    // TODO: Add std::is_fundamental<T> check and use memset from primitive types
     template <typename T>
     void Mat<T>::Value(T value)
     {
-        if (m_Mat != nullptr)
+        if (m_Mat)
         {
-            for (unsigned int i = 0; i < m_M; i++)
-                for (unsigned int j = 0; j < m_N; j++)
-                    m_Mat[i][j] = value;
+            std::fill(m_Mat[0], m_Mat[0] + (m_M * m_N), value);
         }
     }
 
     template <typename T>
     unsigned int Mat<T>::ValueCount(T value)
     {
-        unsigned int count = 0;
-
-        if (m_Mat != nullptr)
+        if (m_Mat)
         {
-            for (unsigned int i = 0; i < m_M; i++)
-                for (unsigned int j = 0; j < m_N; j++)
-                    if (m_Mat[i][j] == value)
-                        count++;
+            return std::count(m_Mat[0], m_Mat[0] + (m_M * m_N), value);
         }
-
-        return count;
+        else
+        {
+            return 0;
+        }
     }
 }
