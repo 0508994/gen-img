@@ -17,11 +17,11 @@ namespace gir
         std::uniform_real_distribution<double> m_Distr0toCols;
         std::uniform_real_distribution<double> m_Distr0toRows;
         std::uniform_real_distribution<double> m_DistrMut;
-        std::uniform_int_distribution<unsigned int> m_DistrLineInd;
-        std::uniform_int_distribution<unsigned int> m_DistrLineSplitInd;
-        std::uniform_int_distribution<unsigned int> m_DistrMutLin;
+        std::uniform_int_distribution<std::size_t> m_DistrLineInd;
+        std::uniform_int_distribution<std::size_t> m_DistrLineSplitInd;
+        std::uniform_int_distribution<std::size_t> m_DistrMutLin;
     public:        
-        RNG(unsigned int nRows, unsigned int nColumns, unsigned int nLines, unsigned int nMaxLinesToMutate)
+        RNG(std::size_t nRows, std::size_t nColumns, std::size_t nLines, std::size_t nMaxLinesToMutate)
             : m_Generator((std::random_device())())
             , m_DistrAngle(0.0, 360.0)
             , m_Prob(0.0, 1.0)
@@ -39,8 +39,8 @@ namespace gir
         inline double RandomX() { return m_Distr0toCols(m_Generator); }
         inline double RandomY() { return m_Distr0toRows(m_Generator); }
         inline double RandomIncr() { return m_DistrMut(m_Generator); }
-        inline unsigned int RandomLineIndex() { return m_DistrLineInd(m_Generator); }
-        inline unsigned int RandomSplitIndex() { return m_DistrLineSplitInd(m_Generator); }
-        inline unsigned int RandomLineNumber() { return m_DistrMutLin(m_Generator); }
+        inline std::size_t RandomLineIndex() { return m_DistrLineInd(m_Generator); }
+        inline std::size_t RandomSplitIndex() { return m_DistrLineSplitInd(m_Generator); }
+        inline std::size_t RandomLineNumber() { return m_DistrMutLin(m_Generator); }
     };
 }

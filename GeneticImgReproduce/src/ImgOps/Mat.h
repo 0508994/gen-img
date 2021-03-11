@@ -6,21 +6,21 @@ namespace gir
     class Mat
     {
     private:
-        unsigned int m_M, m_N;
+        std::size_t m_M, m_N;
         T** m_Mat;
     public:
         Mat();
-        Mat(unsigned int m, unsigned int n);
+        Mat(std::size_t m, std::size_t n);
         Mat(const Mat<T>& other);
         Mat(Mat<T>&& other);
         ~Mat();
 
-        void Resize(unsigned int m, unsigned int n);
+        void Resize(std::size_t m, std::size_t n);
         void Value(T value);
-        unsigned int ValueCount(T value);
+        std::size_t ValueCount(T value);
 
-        inline unsigned int Rows() const { return m_M; }
-        inline unsigned int Cols() const { return m_N; }
+        inline std::size_t Rows() const { return m_M; }
+        inline std::size_t Cols() const { return m_N; }
 
         inline const T* operator[](int i) const { return m_Mat[i]; }
         inline T* operator[](int i) { return m_Mat[i]; }
@@ -38,22 +38,22 @@ namespace gir
     }
 
     template <typename T>
-    Mat<T>::Mat(unsigned int m, unsigned int n)
+    Mat<T>::Mat(std::size_t m, std::size_t n)
         : m_M(m)
         , m_N(n)
         , m_Mat((m > 0 && n > 0) ? new T * [m] : nullptr)
     {
         if (m_Mat)
         {
-            unsigned int nel = m * n;
+            std::size_t nel = m * n;
             m_Mat[0] = new T[nel];
-            for (unsigned int i = 1; i < m; i++)
+            for (std::size_t i = 1; i < m; i++)
                 m_Mat[i] = m_Mat[i - 1] + n;
         }
     }
 
     template <typename T>
-    void Mat<T>::Resize(unsigned int m, unsigned int n)
+    void Mat<T>::Resize(std::size_t m, std::size_t n)
     {
         m_M = m;
         m_N = n;
@@ -68,9 +68,9 @@ namespace gir
 
         if (m_Mat)
         {
-            unsigned int nel = m * n;
+            std::size_t nel = m * n;
             m_Mat[0] = new T[nel];
-            for (unsigned int i = 1; i < m; i++)
+            for (std::size_t i = 1; i < m; i++)
                 m_Mat[i] = m_Mat[i - 1] + n;
         }
     }
@@ -83,15 +83,15 @@ namespace gir
     {
         if (m_Mat)
         {
-            const unsigned int m = other.m_M;
-            const unsigned int n = other.m_N;
-            const unsigned int nel = m * n;
+            const std::size_t m = other.m_M;
+            const std::size_t n = other.m_N;
+            const std::size_t nel = m * n;
 
             m_Mat[0] = new T[nel];
-            for (unsigned int i = 1; i < m; i++)
+            for (std::size_t i = 1; i < m; i++)
                 m_Mat[i] = m_Mat[i - 1] + n;
 
-            for (unsigned int i = 0; i < nel; i++)
+            for (std::size_t i = 0; i < nel; i++)
                 m_Mat[0][i] = other.m_Mat[0][i];
         }
     }
@@ -145,7 +145,7 @@ namespace gir
     }
 
     template <typename T>
-    unsigned int Mat<T>::ValueCount(T value)
+    std::size_t Mat<T>::ValueCount(T value)
     {
         if (m_Mat)
         {

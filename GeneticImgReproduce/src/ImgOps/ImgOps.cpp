@@ -9,14 +9,14 @@ namespace gir
     {
         float sum;
         int x1, y1;
-        const unsigned int cols = src.Cols();
-        const unsigned int rows = src.Rows();
-        const unsigned int kernelSize = kernel.size();
+        const std::size_t cols = src.Cols();
+        const std::size_t rows = src.Rows();
+        const std::size_t kernelSize = kernel.size();
         const int kernelOffset = kernelSize / 2;
 
-        for (unsigned int y = 0; y < rows; y++)
+        for (std::size_t y = 0; y < rows; y++)
         {
-            for (unsigned int x = 0; x < cols; x++)
+            for (std::size_t x = 0; x < cols; x++)
             {
                 sum = 0.0f;
                 for (int k = -kernelOffset; k <= kernelOffset; k++)
@@ -40,8 +40,8 @@ namespace gir
 
         Kernel<float, 3, 3> gauss;
 
-        for (unsigned int y = 0; y < 3; y++)
-            for (unsigned int x = 0; x < 3; x++)
+        for (std::size_t y = 0; y < 3; y++)
+            for (std::size_t x = 0; x < 3; x++)
             {
                 gauss[y][x] = exp(-0.5 * (x * x + y * y) / (sigma * sigma))
                     / (2.0 * M_PI * sigma * sigma);
@@ -63,9 +63,9 @@ namespace gir
 
         out.Value(0);
 
-        for (unsigned int y = 1; y < nms.Rows() - 1; y++)
+        for (std::size_t y = 1; y < nms.Rows() - 1; y++)
         {
-            for (unsigned int x = 1; x < nms.Cols() - 1; x++)
+            for (std::size_t x = 1; x < nms.Cols() - 1; x++)
             {
                 if (nms[y][x] >= tmax && out[y][x] == 0)
                 {
@@ -102,14 +102,14 @@ namespace gir
     {
         float dx, dy;
         int x1, y1;
-        const unsigned int cols = src.Cols();
-        const unsigned int rows = src.Rows();
-        const unsigned int kernelSize = kx.size();
+        const std::size_t cols = src.Cols();
+        const std::size_t rows = src.Rows();
+        const std::size_t kernelSize = kx.size();
         const int kernelOffset = kernelSize / 2;
 
-        for (unsigned int y = 0; y < rows; y++)
+        for (std::size_t y = 0; y < rows; y++)
         {
-            for (unsigned int x = 0; x < cols; x++)
+            for (std::size_t x = 0; x < cols; x++)
             {
                 dx = 0.0f;
                 dy = 0.0f;
@@ -137,9 +137,9 @@ namespace gir
         const Uint8* pByteBuffer = inRgba.getPixelsPtr();
         const auto sfSize = inRgba.getSize();
         
-        const unsigned int numPixels = sfSize.x * sfSize.y;
+        const std::size_t numPixels = sfSize.x * sfSize.y;
 
-        for (unsigned int i = 0; i < numPixels; ++i)
+        for (std::size_t i = 0; i < numPixels; ++i)
         {
             float red = pByteBuffer[4 * i] * 0.299f;
             float green = pByteBuffer[4 * i + 1] * 0.587;
@@ -155,9 +155,9 @@ namespace gir
 
     void ToSFMLImage(const Mat<Uint8>& inGray, sf::Image& outRgba)
     {
-        for (unsigned int y = 0; y < inGray.Rows(); y++)
+        for (std::size_t y = 0; y < inGray.Rows(); y++)
         {
-            for (unsigned int x = 0; x < inGray.Cols(); x++)
+            for (std::size_t x = 0; x < inGray.Cols(); x++)
             {
                 Uint8 g = inGray[y][x];
                 outRgba.setPixel(x, y, sf::Color(g, g, g, 255));
@@ -189,9 +189,9 @@ namespace gir
     {
         float dx, dy, g, dir;
         int x1, y1;
-        const unsigned int cols = src.Cols();
-        const unsigned int rows = src.Rows();
-        const unsigned int kernelSize = sobelx.size();
+        const std::size_t cols = src.Cols();
+        const std::size_t rows = src.Rows();
+        const std::size_t kernelSize = sobelx.size();
         int kernelOffset = kernelSize / 2;
 
         Mat<float> temp(rows, cols);
@@ -202,9 +202,9 @@ namespace gir
         Convolution(src, temp, Gaussian(sigma));
         
         // # Gradients
-        for (unsigned int y = 0; y < rows; y++)
+        for (std::size_t y = 0; y < rows; y++)
         {
-            for (unsigned int x = 0; x < cols; x++)
+            for (std::size_t x = 0; x < cols; x++)
             {
                 dx = 0.0f;
                 dy = 0.0f;
@@ -226,9 +226,9 @@ namespace gir
         }
 
         // # Non-maximum suppression
-        for (unsigned int y = 1; y < rows - 1; y++)
+        for (std::size_t y = 1; y < rows - 1; y++)
         {
-            for (unsigned int x = 1; x < cols - 1; x++)
+            for (std::size_t x = 1; x < cols - 1; x++)
             {
                 g = gradDir[y][x].first;
                 dir = gradDir[y][x].second;
@@ -249,9 +249,9 @@ namespace gir
 
     void Threshold(Mat<Uint8>& src, Uint8 value)
     {
-        for (unsigned int y = 0; y < src.Rows(); y++)
+        for (std::size_t y = 0; y < src.Rows(); y++)
         {
-            for (unsigned int x = 0; x < src.Cols(); x++)
+            for (std::size_t x = 0; x < src.Cols(); x++)
             {
                 src[y][x] = src[y][x] >= value ? 255 : 0;
             }
@@ -267,29 +267,29 @@ namespace gir
         opencv/modules/imgproc/src/hough.cpp
     */
 
-    void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator)
+    void HoughTransform(const Mat<Uint8>& edges, Mat<std::size_t>& accumulator)
     {
         double r;
-        const unsigned int rows = edges.Rows();
-        const unsigned int cols = edges.Cols();
+        const std::size_t rows = edges.Rows();
+        const std::size_t cols = edges.Cols();
         const double centerY  = rows / 2.0;
         const double centerX = cols / 2.0;
 
         const double houghH = (sqrt(2.0) * (rows > cols ? rows : cols)) / 2.0; // max distance [rect diag]
-        const unsigned int accH = houghH * 2.0;
-        const unsigned int accW = 180;
+        const std::size_t accH = houghH * 2.0;
+        const std::size_t accW = 180;
 
         accumulator.Resize(accH, accW);
         accumulator.Value(0);
-        //memset(accumulator[0], 0, rows * cols * sizeof(unsigned int));
+        //memset(accumulator[0], 0, rows * cols * sizeof(std::size_t));
 
-        for (unsigned int y = 0; y < rows; y++)
+        for (std::size_t y = 0; y < rows; y++)
         {
-            for (unsigned int x = 0; x < cols; x++)
+            for (std::size_t x = 0; x < cols; x++)
             {
                 if (edges[y][x]) // assume edges are threshed
                 {
-                    for (unsigned int a = 0; a < 180; a++)
+                    for (std::size_t a = 0; a < 180; a++)
                     {
                         r = ((x - centerX) * cos(a * deg2rad)) + ((y - centerY) * sin(a * deg2rad));
                         accumulator[static_cast<int>(r + houghH)][a]++;
@@ -299,23 +299,23 @@ namespace gir
         }
     }
 
-    std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold)
+    std::vector<Line> HoughLines(const Mat<Uint8>& edges, std::size_t threshold)
     {
         int max, r1, t1;
         double radAngle, x1, y1, x2, y2;
         std::vector<Line> lines;
-        Mat<unsigned int> accumulator;
+        Mat<std::size_t> accumulator;
 
         HoughTransform(edges, accumulator);
 
-        const unsigned int accH = accumulator.Rows();
-        const unsigned int accW = accumulator.Cols();
+        const std::size_t accH = accumulator.Rows();
+        const std::size_t accW = accumulator.Cols();
         const double rows = static_cast<double>(edges.Rows());
         const double cols = static_cast<double>(edges.Cols());
 
-        for (unsigned int r = 0; r < accH; r++) 
+        for (std::size_t r = 0; r < accH; r++) 
         {
-            for (unsigned int t = 0; t < accW; t++)
+            for (std::size_t t = 0; t < accW; t++)
             {
                 if (accumulator[r][t] >= threshold)
                 {

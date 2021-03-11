@@ -13,9 +13,9 @@ namespace gir
     private:
         using SelectionPair = std::pair<const SolutionCandidate&, const SolutionCandidate&>;
     private:
-        unsigned int m_Iteration = 0;
-        unsigned int m_PopSize = 0;
-        unsigned int m_Elitismn = 0;
+        std::size_t m_Iteration = 0;
+        std::size_t m_PopSize = 0;
+        std::size_t m_Elitismn = 0;
         double m_TransMutChance = 0;
         double m_RotMutChance = 0;
 
@@ -25,20 +25,20 @@ namespace gir
         std::vector<Line> m_Lines;
         std::shared_ptr<RNG> m_Rng;
 
-        unsigned int m_ImgRows = 0;
-        unsigned int m_ImgCols = 0;
+        std::size_t m_ImgRows = 0;
+        std::size_t m_ImgCols = 0;
     public:
         GeneticOptimizer() = delete;
-        GeneticOptimizer(unsigned int popSize, double transMutChance,
-                         double rotMutChance, unsigned int elitismn);
+        GeneticOptimizer(std::size_t popSize, double transMutChance,
+                         double rotMutChance, std::size_t elitismn);
     public:
         void PrepareGA(const sf::Image& origImage, Uint8 threshold,
-                       unsigned int minLineLen, unsigned int maxLineLen);
-        const SolutionCandidate& RunIterations(unsigned int nIterations);
+                       std::size_t minLineLen, std::size_t maxLineLen);
+        const SolutionCandidate& RunIterations(std::size_t nIterations);
         std::string GetInfo() const;
 
         inline const std::vector<Line>& Lines() const { return m_Lines; }
-        inline unsigned int LinesSize() const { return m_Lines.size(); }
+        inline std::size_t LinesSize() const { return m_Lines.size(); }
         inline const Mat<Uint8>& ThreshEdges() const { return m_ThreshEdges; }
     private:
         SelectionPair Selection(const std::vector<double>& weights);

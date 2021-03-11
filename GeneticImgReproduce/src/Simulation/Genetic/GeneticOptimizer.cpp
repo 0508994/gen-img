@@ -2,8 +2,8 @@
 
 namespace gir
 {
-    GeneticOptimizer::GeneticOptimizer(unsigned int popSize, double transMutChance,
-                                       double rotMutChance, unsigned int elitismn)
+    GeneticOptimizer::GeneticOptimizer(std::size_t popSize, double transMutChance,
+                                       double rotMutChance, std::size_t elitismn)
         : m_PopSize(popSize)
         , m_Elitismn(elitismn)
         , m_TransMutChance(transMutChance)
@@ -14,7 +14,7 @@ namespace gir
     }
 
     void GeneticOptimizer::PrepareGA(const sf::Image& origImage, Uint8 threshold,
-                                     unsigned int minLineLen, unsigned int maxLineLen)
+                                     std::size_t minLineLen, std::size_t maxLineLen)
     {
         assert(maxLineLen > minLineLen);
 
@@ -29,7 +29,7 @@ namespace gir
         Threshold(m_ThreshEdges, threshold);
 
         std::mt19937 gen((std::random_device())());
-        std::uniform_int_distribution<unsigned int> lineLenDistr(minLineLen, maxLineLen);
+        std::uniform_int_distribution<std::size_t> lineLenDistr(minLineLen, maxLineLen);
 
         int whitePixelCount = m_ThreshEdges.ValueCount(255) * 1.5; 
         assert(whitePixelCount > 0);
@@ -49,13 +49,13 @@ namespace gir
 
         m_Rng = std::make_shared<RNG>(m_ThreshEdges.Rows(), m_ThreshEdges.Cols(), m_Lines.size(), m_Lines.size() * 0.8);
     
-        for (unsigned int i = 0; i < m_PopSize; i++)
+        for (std::size_t i = 0; i < m_PopSize; i++)
         {
-            m_Population.push_back(SolutionCandidate(&m_Lines, m_ThreshEdges, m_Rng));
+            m_Population.emplace_back(&m_Lines, m_ThreshEdges, m_Rng);
         }
     }
 
-    static bool SelectionCompare(std::pair<double, unsigned int> l, std::pair<double, unsigned int> r)
+    static bool SelectionCompare(std::pair<double, std::size_t> l, std::pair<double, std::size_t> r)
     {
         return l.first > r.first;
     }
@@ -63,11 +63,11 @@ namespace gir
     GeneticOptimizer::SelectionPair GeneticOptimizer::Selection(const std::vector<double>& weights)
     {
         // Poor poor poor poor poor poor version of weighted selection
-        unsigned int i1, i2;
+        std::size_t i1, i2;
         std::vector<std::pair<double, int>> weightedIndices;
         weightedIndices.reserve(weights.size());
 
-        for (unsigned int i = 0; i < weights.size(); i++)
+        for (std::size_t i = 0; i < weights.size(); i++)
         {
             weightedIndices.emplace_back(m_Rng->Probability() * weights[i], i);
         }
@@ -80,18 +80,18 @@ namespace gir
         return std::make_pair(std::cref(m_Population[i1]), std::cref(m_Population[i2]));
     }
 
-    const SolutionCandidate& GeneticOptimizer::RunIterations(unsigned int nIterations)
+    const SolutionCandidate& GeneticOptimizer::RunIterations(std::size_t nIterations)
     {
         std::vector<double> weights(m_PopSize);
 
-        for (unsigned int i = 0; i < nIterations; i++)
+        for (std::size_t i = 0; i < nIterations; i++)
         {
             double accFitness = 0.0;
             std::vector<SolutionCandidate> newPopulation;
 
             // Copy the best solutions from the last iteration
             newPopulation.reserve(m_PopSize);
-            for (unsigned int i = 0; i < m_Elitismn; i++)
+            for (std::size_t i = 0; i < m_Elitismn; i++)
             {
                 newPopulation.push_back(m_Population[i]);
             }
@@ -104,7 +104,7 @@ namespace gir
 
             if (accFitness == 0.0) accFitness = 1.0;
 
-            for (unsigned int i = 0; i < m_PopSize; i++)
+            for (std::size_t i = 0; i < m_PopSize; i++)
             {
                 weights[i] = m_Population[i].GetFitness() / accFitness;
             }
@@ -115,7 +115,8 @@ namespace gir
                 const auto& [parent1, parent2] = Selection(weights);
 
                 // Crossover
-                SolutionCandidate child1(&m_Lines, m_ImgRows, m_ImgCols, m_Rng), child2(&m_Lines, m_ImgRows, m_ImgCols, m_Rng);
+                SolutionCandidate child1(&m_Lines, m_ImgRows, m_ImgCols, m_Rng);
+                SolutionCandidate child2(&m_Lines, m_ImgRows, m_ImgCols, m_Rng);
                 SolutionCandidate::Crossover(parent1, parent2, child1, child2);
 
                 // Mutate the children [TODO: maybe add annealing ?]
@@ -145,7 +146,7 @@ namespace gir
         std::stringstream ss;
         ss << "Iteration: " << m_Iteration << "\n";
 
-        //for (unsigned int i = 0; i < m_PopSize; i++)
+        //for (std::size_t i = 0; i < m_PopSize; i++)
         //	ss << "Fitness " << i << " :" << m_Population[i].GetFitness() << "\n";
 
         // Population is always sorted before this function is called.

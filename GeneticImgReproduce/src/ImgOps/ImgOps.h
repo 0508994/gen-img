@@ -5,6 +5,7 @@
 #include <iostream>
 #include <utility>
 #include <queue>
+
 #include "Mat.h"
 #include "SFML/Graphics/Image.hpp"
 #include "Kernels.h"
@@ -29,6 +30,6 @@ namespace gir
     void Canny(const Mat<Uint8>& src, Mat<Uint8>& dst, float sigma, float tmin, float tmax);
     void Threshold(Mat<Uint8>& src, Uint8 value);
 
-    void HoughTransform(const Mat<Uint8>& edges, Mat<unsigned int>& accumulator);
-    std::vector<Line> HoughLines(const Mat<Uint8>& edges, unsigned int threshold);
+    void HoughTransform(const Mat<Uint8>& edges, Mat<std::size_t>& accumulator);
+    std::vector<Line> HoughLines(const Mat<Uint8>& edges, std::size_t threshold);
 }

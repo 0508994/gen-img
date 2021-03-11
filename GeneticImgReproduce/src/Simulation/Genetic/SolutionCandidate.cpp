@@ -15,7 +15,7 @@ namespace gir
         m_Rotations.reserve(m_LinesSize);
         
         // Generate initial transformations randomly
-        for (unsigned int i = 0; i < m_LinesSize; i++)
+        for (std::size_t i = 0; i < m_LinesSize; i++)
         {
             m_Translations.emplace_back(sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY()));
             m_Rotations.emplace_back(m_Rng->RandomAngle());
@@ -24,8 +24,8 @@ namespace gir
         ComputeFitness(threshEdges);
     }
 
-    SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows,
-                                         unsigned int solutionCols, const std::shared_ptr<RNG>& rng)
+    SolutionCandidate::SolutionCandidate(std::vector<Line>* lines, std::size_t solutionRows,
+                                         std::size_t solutionCols, const std::shared_ptr<RNG>& rng)
         : m_Fitness(0)
         , m_LinesSize(lines->size())
         , m_LinesPtr(lines)
@@ -40,14 +40,14 @@ namespace gir
         //assert(m_Solution.Cols() == threshEdges.Cols() && m_Solution.Rows() == threshEdges.Rows());
         
         auto& lines = *m_LinesPtr;
-        unsigned int rows = threshEdges.Rows(), cols = threshEdges.Cols();
+        std::size_t rows = threshEdges.Rows(), cols = threshEdges.Cols();
         int dx, dy, p, x, y, x0, x1, y0, y1;
         std::unique_ptr<bool[]> used(new bool[rows * cols]);
         
         memset(used.get(), 0, rows * cols);
         m_Fitness = 0;
 
-        for (unsigned int i = 0; i < m_LinesSize; i++)
+        for (std::size_t i = 0; i < m_LinesSize; i++)
         {
             sf::Transform transform;
 
@@ -112,9 +112,9 @@ namespace gir
                                       SolutionCandidate& child1, SolutionCandidate& child2)
     {	
         const auto& rng = parent1.m_Rng;
-        unsigned int splitIndex = rng->RandomSplitIndex();
+        std::size_t splitIndex = rng->RandomSplitIndex();
         
-        for (unsigned int i = 0; i < splitIndex; i++)
+        for (std::size_t i = 0; i < splitIndex; i++)
         {
             child1.m_Translations.push_back(parent1.m_Translations[i]);
             child1.m_Rotations.push_back(parent1.m_Rotations[i]);
@@ -123,7 +123,7 @@ namespace gir
             child2.m_Rotations.push_back(parent2.m_Rotations[i]);
         }
         
-        for (unsigned int i = splitIndex; i < parent1.m_LinesSize; i++)
+        for (std::size_t i = splitIndex; i < parent1.m_LinesSize; i++)
         {
             child1.m_Translations.push_back(parent2.m_Translations[i]);
             child1.m_Rotations.push_back(parent2.m_Rotations[i]);
@@ -138,7 +138,7 @@ namespace gir
         if (m_Rng->Probability() <= transMutChance)
         {
             // Mutate the random number of line translations 
-            for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
+            for (std::size_t i = 0; i < m_Rng->RandomLineNumber(); i++)
             {
                 m_Translations[m_Rng->RandomLineIndex()] = sf::Vector2f(m_Rng->RandomX(), m_Rng->RandomY());
             }
@@ -147,7 +147,7 @@ namespace gir
         if (m_Rng->Probability() <= rotMutChance)
         {
             // Mutate the random number of line rotations
-            for (unsigned int i = 0; i < m_Rng->RandomLineNumber(); i++)
+            for (std::size_t i = 0; i < m_Rng->RandomLineNumber(); i++)
             {
                 m_Rotations[m_Rng->RandomLineIndex()] += m_Rng->RandomIncr() * 2;
             }
@@ -161,7 +161,7 @@ namespace gir
         
         result.reserve(m_LinesSize);
 
-        for (unsigned int i = 0; i < m_LinesSize; i++)
+        for (std::size_t i = 0; i < m_LinesSize; i++)
         {
             sf::Transform transform;
 
@@ -174,7 +174,7 @@ namespace gir
         return result;
     }
 
-    void SolutionCandidate::ClampLine(Line& line, unsigned int rows, unsigned int columns) const
+    void SolutionCandidate::ClampLine(Line& line, std::size_t rows, std::size_t columns) const
     {
         float rowsf = static_cast<float>(rows);
         float colsf = static_cast<float>(columns);
@@ -185,7 +185,7 @@ namespace gir
         line.second.y = std::clamp(line.second.y, 0.0f, rowsf - 1);
     }
 
-    bool SolutionCandidate::WithinBounds(const Line& line, unsigned int rows, unsigned int columns) const
+    bool SolutionCandidate::WithinBounds(const Line& line, std::size_t rows, std::size_t columns) const
     {
         float rowsf = static_cast<float>(rows);
         float colsf = static_cast<float>(columns);

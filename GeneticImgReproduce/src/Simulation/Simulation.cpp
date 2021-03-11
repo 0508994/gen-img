@@ -2,10 +2,10 @@
 
 namespace gir
 {
-    static constexpr unsigned int fps = 60;
+    static constexpr std::size_t fps = 60;
 
-    Simulation::Simulation(unsigned int width, unsigned int height, unsigned int popSize,
-                           double transMutChance, double rotMutChance, unsigned int elitismn)
+    Simulation::Simulation(std::size_t width, std::size_t height, std::size_t popSize,
+                           double transMutChance, double rotMutChance, std::size_t elitismn)
         : m_WindowWidth(width)
         , m_WindowHeight(height)
         , m_Window(sf::VideoMode(width, height), "Image Reconstruction", sf::Style::Titlebar | sf::Style::Close)
@@ -25,8 +25,8 @@ namespace gir
         m_Paused  = false;
     }
     
-    void Simulation::Prepare(const std::string& file, unsigned int threshold,
-                             unsigned int minLineLen, unsigned int maxLineLen)
+    void Simulation::Prepare(const std::string& file, std::size_t threshold,
+                             std::size_t minLineLen, std::size_t maxLineLen)
     {
         // Prepare the original sprite
         m_OI.loadFromFile(file);
@@ -60,7 +60,7 @@ namespace gir
         // Prepare the Vertex array
         m_Va.resize(m_GeneticOptimizer.LinesSize() * 2);
         m_Va.setPrimitiveType(sf::Lines);
-        for (unsigned int i = 0; i < m_Va.getVertexCount(); i++)
+        for (std::size_t i = 0; i < m_Va.getVertexCount(); i++)
             m_Va[i].color = sf::Color(44, 43, 60);
 
         m_Info.setFont(m_Font);
@@ -78,7 +78,7 @@ namespace gir
         
         m_CanvasTexture.clear(sf::Color::Transparent);
 
-        unsigned int i = 0;
+        std::size_t i = 0;
         for (const auto& line : solution.TransformedLines())
         {
             m_Va[i].position = line.first;

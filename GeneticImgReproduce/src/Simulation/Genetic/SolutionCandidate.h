@@ -9,7 +9,7 @@ namespace gir
 	{
 	private:
 		int m_Fitness = 0;
-		unsigned int m_LinesSize;
+		std::size_t m_LinesSize;
 		std::vector<Line>* m_LinesPtr;
 		std::vector<sf::Vector2f> m_Translations;
 		std::vector<double> m_Rotations;
@@ -17,8 +17,8 @@ namespace gir
 		std::shared_ptr<RNG> m_Rng;
 	public:
 		SolutionCandidate(std::vector<Line>* lines, const Mat<Uint8>& threshEdges, const std::shared_ptr<RNG>& rng);
-		SolutionCandidate(std::vector<Line>* lines, unsigned int solutionRows,
-						  unsigned int solutionCols, const std::shared_ptr<RNG>& rng);
+		SolutionCandidate(std::vector<Line>* lines, std::size_t solutionRows,
+						  std::size_t solutionCols, const std::shared_ptr<RNG>& rng);
 
 		void ComputeFitness(const Mat<Uint8>& threshEdges);
 		static void Crossover(const SolutionCandidate& parent1, const SolutionCandidate& parent2,
@@ -33,7 +33,7 @@ namespace gir
 
 		std::vector<Line> TransformedLines() const;
 	private:
-		void ClampLine(Line& line, unsigned int rows, unsigned int columns) const;
-		bool WithinBounds(const Line& line, unsigned int rows, unsigned int columns) const;
+		void ClampLine(Line& line, std::size_t rows, std::size_t columns) const;
+		bool WithinBounds(const Line& line, std::size_t rows, std::size_t columns) const;
 	};
 }
